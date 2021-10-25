@@ -23,5 +23,12 @@
  */
 package io.jrb.labs.common.resource;
 
-public interface Resource {
+public interface Resource<R extends Resource<R>> {
+
+    String getGuid();
+
+    String getType();
+
+    String getName();
+
 }

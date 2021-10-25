@@ -26,13 +26,14 @@ package io.jrb.labs.entityms.resource;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.jrb.labs.common.resource.Projection;
+import io.jrb.labs.common.resource.Resource;
 import lombok.Builder;
 import lombok.Value;
 
 @Value
 @Builder
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class ItemResource {
+public class ItemResource implements Resource<ItemResource> {
 
     @JsonView(Projection.Summary.class)
     String guid;

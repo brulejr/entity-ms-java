@@ -23,6 +23,7 @@
  */
 package io.jrb.labs.entityms.resource;
 
+import io.jrb.labs.common.resource.AddResource;
 import lombok.Builder;
 import lombok.Value;
 
@@ -31,7 +32,7 @@ import javax.validation.constraints.Size;
 
 @Value
 @Builder
-public class AddItemResource {
+public class AddItemResource implements AddResource<AddItemResource> {
 
     @NotBlank(message = "Type is required")
     @Size(min = 3, max = 64, message = "Type must be between 3 and 64 characters")

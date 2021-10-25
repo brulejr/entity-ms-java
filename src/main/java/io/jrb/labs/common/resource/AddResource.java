@@ -21,18 +21,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.common.domain;
+package io.jrb.labs.common.resource;
 
-public interface Entity<E extends Entity<E>> {
-
-    Long getId();
-
-    String getGuid();
+public interface AddResource<R extends AddResource<R>> {
 
     String getType();
 
     String getName();
-
-    E withGuid(String guid);
 
 }
