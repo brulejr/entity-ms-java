@@ -21,12 +21,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.common.resource;
+package io.jrb.labs.common.domain;
 
-public interface AddResource<R extends AddResource<R>> {
+import lombok.Builder;
+import lombok.Value;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
-    String getType();
+@Value
+@Builder(toBuilder = true)
+@Table(value = "t_lookup_value")
+public class LookupValue {
 
-    String getName();
+    @Id
+    @Column(value = "lv_id")
+    long id;
+
+    @Column(value = "lv_entity_id")
+    long entityId;
+
+    @Column(value = "lv_value_type")
+    String valueType;
+
+    @Column(value = "lv_value")
+    String value;
 
 }

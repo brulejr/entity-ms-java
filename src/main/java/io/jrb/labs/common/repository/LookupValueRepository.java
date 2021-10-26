@@ -21,34 +21,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.entityms.resource;
+package io.jrb.labs.common.repository;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonView;
-import io.jrb.labs.common.resource.Projection;
-import io.jrb.labs.common.resource.Resource;
-import lombok.Builder;
-import lombok.Value;
-import lombok.With;
+import io.jrb.labs.common.domain.LookupValue;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import java.util.List;
+@Repository
+public interface LookupValueRepository extends ReactiveCrudRepository<LookupValue, Long>  {
 
-@Value
-@Builder
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class ItemResource implements Resource<ItemResource> {
+    Mono<Void> deleteByEntityId(long entityId);
 
-    @JsonView(Projection.Summary.class)
-    String guid;
-
-    @JsonView(Projection.Summary.class)
-    String type;
-
-    @JsonView(Projection.Summary.class)
-    String name;
-
-    @JsonView(Projection.Detail.class)
-    @With
-    List<String> tags;
+    Flux<LookupValue> findByEntityId(long entityId);
 
 }

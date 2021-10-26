@@ -23,6 +23,8 @@
  */
 package io.jrb.labs.common.resource;
 
+import java.util.List;
+
 public interface Resource<R extends Resource<R>> {
 
     String getGuid();
@@ -30,5 +32,9 @@ public interface Resource<R extends Resource<R>> {
     String getType();
 
     String getName();
+
+    List<String> getTags();
+
+    R withTags(List<String> tags);
 
 }

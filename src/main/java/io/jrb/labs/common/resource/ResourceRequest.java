@@ -23,5 +23,14 @@
  */
 package io.jrb.labs.common.resource;
 
-public class ResourceRequest {
+import java.util.List;
+
+public interface ResourceRequest<R extends ResourceRequest<R>> {
+
+    String getType();
+
+    String getName();
+
+    List<String> getTags();
+
 }

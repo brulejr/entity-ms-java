@@ -23,16 +23,18 @@
  */
 package io.jrb.labs.entityms.resource;
 
-import io.jrb.labs.common.resource.AddResource;
+import io.jrb.labs.common.resource.ResourceRequest;
 import lombok.Builder;
+import lombok.Singular;
 import lombok.Value;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.util.List;
 
 @Value
 @Builder
-public class AddItemResource implements AddResource<AddItemResource> {
+public class AddItemResource implements ResourceRequest<AddItemResource> {
 
     @NotBlank(message = "Type is required")
     @Size(min = 3, max = 64, message = "Type must be between 3 and 64 characters")
@@ -41,5 +43,8 @@ public class AddItemResource implements AddResource<AddItemResource> {
     @NotBlank(message = "Name is required")
     @Size(min = 4, max = 64, message = "Name must be between 4 and 64 characters")
     String name;
+
+    @Singular
+    List<String> tags;
 
 }

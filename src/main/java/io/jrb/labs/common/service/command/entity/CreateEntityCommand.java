@@ -24,21 +24,26 @@
 package io.jrb.labs.common.service.command.entity;
 
 import io.jrb.labs.common.domain.Entity;
+import io.jrb.labs.common.domain.LookupValue;
 import io.jrb.labs.common.repository.EntityRepository;
+import io.jrb.labs.common.repository.LookupValueRepository;
+import io.jrb.labs.common.resource.Resource;
+import io.jrb.labs.common.resource.ResourceRequest;
 import io.jrb.labs.common.service.command.Command;
 import io.jrb.labs.common.service.command.CommandException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.NestedExceptionUtils;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
 @Slf4j
-public abstract class CreateEntityCommand<REQ, RSP, E extends Entity<E>> implements Command<REQ, RSP> {
+public abstract class CreateEntityCommand<REQ extends ResourceRequest<REQ>, RSP extends Resource<RSP>, E extends Entity<E>> implements Command<REQ, RSP> {
 
     private static final String UNIQUE_INDEX_ERROR = "Unique index or primary key violation";
 
@@ -46,27 +51,56 @@ public abstract class CreateEntityCommand<REQ, RSP, E extends Entity<E>> impleme
     private final Function<REQ, E> toEntityFn;
     private final Function<E, RSP> toResourceFn;
     private final EntityRepository<E> repository;
+    private final LookupValueRepository lookupValueRepository;
 
     protected CreateEntityCommand(
             final String entityType,
             final Function<REQ, E> toEntityFn,
             final Function<E, RSP> toResourceFn,
-            final EntityRepository<E> repository
+            final EntityRepository<E> repository,
+            final LookupValueRepository lookupValueRepository
     ) {
         this.entityType = entityType;
         this.toEntityFn = toEntityFn;
         this.toResourceFn = toResourceFn;
         this.repository = repository;
+        this.lookupValueRepository = lookupValueRepository;
     }
 
     @Override
     public Mono<RSP> execute(final REQ request) {
+        return createEntity(request)
+                .zipWhen(entity -> createLookupValues(entity.getId(), "TAG", request.getTags()))
+                .map(tuple -> toResourceFn.apply(tuple.getT1())
+                        .withTags(tuple.getT2()))
+                .onErrorResume(this::handleException);
+    }
+
+    private Mono<E> createEntity(final REQ request) {
         return Mono.just(request)
                 .map(toEntityFn)
                 .map(entity -> entity.withGuid(UUID.randomUUID().toString()))
-                .flatMap(repository::save)
-                .map(toResourceFn)
-                .onErrorResume(t -> handleException(t));
+                .flatMap(repository::save);
+    }
+
+    private Mono<List<String>> createLookupValues(
+            final long entityId,
+            final String type,
+            final List<String> values
+    ) {
+        if (values != null) {
+            return Flux.fromIterable(values)
+                    .map(value -> LookupValue.builder()
+                            .entityId(entityId)
+                            .valueType(type)
+                            .value(value)
+                            .build())
+                    .flatMap(lookupValueRepository::save)
+                    .map(LookupValue::getValue)
+                    .collectList();
+        } else {
+            return Mono.empty();
+        }
     }
 
     private Mono<RSP> handleException(final Throwable t) {

@@ -23,6 +23,7 @@
  */
 package io.jrb.labs.entityms.service.command;
 
+import io.jrb.labs.common.repository.LookupValueRepository;
 import io.jrb.labs.common.service.command.entity.CreateEntityCommand;
 import io.jrb.labs.entityms.domain.ItemEntity;
 import io.jrb.labs.entityms.mapper.ItemMapper;
@@ -34,8 +35,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class CreateItemCommand extends CreateEntityCommand<AddItemResource, ItemResource, ItemEntity> {
 
-    public CreateItemCommand(final ItemMapper mapper, final ItemEntityRepository repository) {
-        super("item", mapper::addItemToItemEntity, mapper::itemEntityToItemResource, repository);
+    public CreateItemCommand(
+            final ItemMapper mapper,
+            final ItemEntityRepository repository,
+            final LookupValueRepository lookupValueRepository
+    ) {
+        super("item", mapper::addItemToItemEntity, mapper::itemEntityToItemResource, repository, lookupValueRepository);
     }
 
 }
