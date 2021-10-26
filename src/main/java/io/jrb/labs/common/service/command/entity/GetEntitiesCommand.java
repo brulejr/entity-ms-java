@@ -30,15 +30,15 @@ import org.reactivestreams.Publisher;
 
 import java.util.function.Function;
 
-public abstract class GetEntitiesCommand<RSP, E extends Entity<E>> implements Command<Void, RSP> {
+public abstract class GetEntitiesCommand<O, E extends Entity<E>> implements Command<Void, O> {
 
     private final String entityType;
-    private final Function<E, RSP> toResourceFn;
+    private final Function<E, O> toResourceFn;
     private final EntityRepository<E> repository;
 
     protected GetEntitiesCommand(
             final String entityType,
-            final Function<E, RSP> toResourceFn,
+            final Function<E, O> toResourceFn,
             final EntityRepository<E> repository
     ) {
         this.entityType = entityType;
@@ -47,7 +47,7 @@ public abstract class GetEntitiesCommand<RSP, E extends Entity<E>> implements Co
     }
 
     @Override
-    public Publisher<RSP> execute(final Void request) {
+    public Publisher<O> execute(final Void request) {
         return repository.findAll()
                 .map(toResourceFn)
                 .onErrorResume(t -> handleException(t, "retrieve all " + entityType));

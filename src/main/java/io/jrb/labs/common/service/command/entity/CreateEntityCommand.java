@@ -43,20 +43,20 @@ import java.util.UUID;
 import java.util.function.Function;
 
 @Slf4j
-public abstract class CreateEntityCommand<REQ extends ResourceRequest<REQ>, RSP extends Resource<RSP>, E extends Entity<E>> implements Command<REQ, RSP> {
+public abstract class CreateEntityCommand<I extends ResourceRequest<I>, O extends Resource<O>, E extends Entity<E>> implements Command<I, O> {
 
     private static final String UNIQUE_INDEX_ERROR = "Unique index or primary key violation";
 
     private final String entityType;
-    private final Function<REQ, E> toEntityFn;
-    private final Function<E, RSP> toResourceFn;
+    private final Function<I, E> toEntityFn;
+    private final Function<E, O> toResourceFn;
     private final EntityRepository<E> repository;
     private final LookupValueRepository lookupValueRepository;
 
     protected CreateEntityCommand(
             final String entityType,
-            final Function<REQ, E> toEntityFn,
-            final Function<E, RSP> toResourceFn,
+            final Function<I, E> toEntityFn,
+            final Function<E, O> toResourceFn,
             final EntityRepository<E> repository,
             final LookupValueRepository lookupValueRepository
     ) {
@@ -68,7 +68,7 @@ public abstract class CreateEntityCommand<REQ extends ResourceRequest<REQ>, RSP 
     }
 
     @Override
-    public Mono<RSP> execute(final REQ request) {
+    public Mono<O> execute(final I request) {
         return createEntity(request)
                 .zipWhen(entity -> createLookupValues(entity.getId(), "TAG", request.getTags()))
                 .map(tuple -> toResourceFn.apply(tuple.getT1())
@@ -76,7 +76,7 @@ public abstract class CreateEntityCommand<REQ extends ResourceRequest<REQ>, RSP 
                 .onErrorResume(this::handleException);
     }
 
-    private Mono<E> createEntity(final REQ request) {
+    private Mono<E> createEntity(final I request) {
         return Mono.just(request)
                 .map(toEntityFn)
                 .map(entity -> entity.withGuid(UUID.randomUUID().toString()))
@@ -103,7 +103,7 @@ public abstract class CreateEntityCommand<REQ extends ResourceRequest<REQ>, RSP 
         }
     }
 
-    private Mono<RSP> handleException(final Throwable t) {
+    private Mono<O> handleException(final Throwable t) {
         if (t instanceof DataIntegrityViolationException) {
             final Optional<String> message = Optional.ofNullable(t).map(Throwable::getMessage);
             if (message.isPresent() && message.get().contains(UNIQUE_INDEX_ERROR)) {

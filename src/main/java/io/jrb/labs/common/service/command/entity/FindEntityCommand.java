@@ -37,16 +37,16 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public abstract class FindEntityCommand<RSP extends Resource<RSP>, E extends Entity<E>> implements Command<String, RSP> {
+public abstract class FindEntityCommand<O extends Resource<O>, E extends Entity<E>> implements Command<String, O> {
 
     private final String entityType;
-    private final Function<E, RSP> toResourceFn;
+    private final Function<E, O> toResourceFn;
     private final EntityRepository<E> repository;
     private final LookupValueRepository lookupValueRepository;
 
     protected FindEntityCommand(
             final String entityType,
-            final Function<E, RSP> toResourceFn,
+            final Function<E, O> toResourceFn,
             final EntityRepository<E> repository,
             final LookupValueRepository lookupValueRepository
     ) {
@@ -57,7 +57,7 @@ public abstract class FindEntityCommand<RSP extends Resource<RSP>, E extends Ent
     }
 
     @Override
-    public Mono<RSP> execute(final String guid) {
+    public Mono<O> execute(final String guid) {
         return repository.findByGuid(guid)
                 .zipWhen(entity -> findValueList(entity.getId(), Projection.DEEP))
                 .map(tuple -> toResourceFn.apply(tuple.getT1())
