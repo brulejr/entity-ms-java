@@ -25,12 +25,18 @@ package io.jrb.labs.common.service.command.entity;
 
 import io.jrb.labs.common.domain.Entity;
 import io.jrb.labs.common.repository.EntityRepository;
+import io.jrb.labs.common.resource.Resource;
+import io.jrb.labs.common.resource.ResourceRequest;
 import io.jrb.labs.common.service.command.Command;
 import org.reactivestreams.Publisher;
 
 import java.util.function.Function;
 
-public abstract class GetEntitiesCommand<O, E extends Entity<E>> implements Command<Void, O> {
+public abstract class GetEntitiesCommand<
+        I extends ResourceRequest<I>,
+        O extends Resource<O>,
+        C extends EntityCommandContext<I, O, C>,
+        E extends Entity<E>> implements Command<I, O, C> {
 
     private final String entityType;
     private final Function<E, O> toResourceFn;
@@ -47,9 +53,10 @@ public abstract class GetEntitiesCommand<O, E extends Entity<E>> implements Comm
     }
 
     @Override
-    public Publisher<O> execute(final Void request) {
+    public Publisher<C> execute(final C context) {
         return repository.findAll()
                 .map(toResourceFn)
+                .map(context::withOutput)
                 .onErrorResume(t -> handleException(t, "retrieve all " + entityType));
     }
 

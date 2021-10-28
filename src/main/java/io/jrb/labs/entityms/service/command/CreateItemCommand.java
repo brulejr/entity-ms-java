@@ -33,7 +33,7 @@ import io.jrb.labs.entityms.resource.ItemResource;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CreateItemCommand extends CreateEntityCommand<AddItemResource, ItemResource, ItemEntity> {
+public class CreateItemCommand extends CreateEntityCommand<AddItemResource, ItemResource, ItemContext, ItemEntity> {
 
     public CreateItemCommand(
             final ItemMapper mapper,

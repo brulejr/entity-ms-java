@@ -24,20 +24,21 @@
 package io.jrb.labs.common.service.command.entity;
 
 import io.jrb.labs.common.service.command.Command;
+import io.jrb.labs.common.service.command.CommandContext;
 import io.jrb.labs.common.service.command.CommandException;
 
 public class EntityCommandException extends CommandException {
 
-    public <REQ, RSP> EntityCommandException(
-            final Command<REQ, RSP> command,
+    public <I, O, C extends CommandContext<I, O, C>> EntityCommandException(
+            final Command<I, O, C> command,
             final int statusCode,
             final String message
     ) {
         super(command, statusCode, message);
     }
 
-    public <REQ, RSP> EntityCommandException(
-            final Command<REQ, RSP> command,
+    public <I, O, C extends CommandContext<I, O, C>> EntityCommandException(
+            final Command<I, O, C> command,
             final int statusCode,
             final String message,
             final Throwable cause

@@ -21,21 +21,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.entityms.service.command;
+package io.jrb.labs.common.service.command;
 
-import io.jrb.labs.common.service.command.entity.GetEntitiesCommand;
-import io.jrb.labs.entityms.domain.ItemEntity;
-import io.jrb.labs.entityms.mapper.ItemMapper;
-import io.jrb.labs.entityms.repository.ItemEntityRepository;
-import io.jrb.labs.entityms.resource.AddItemResource;
-import io.jrb.labs.entityms.resource.ItemResource;
-import org.springframework.stereotype.Component;
+import io.jrb.labs.common.resource.Projection;
 
-@Component
-public class GetItemsCommand extends GetEntitiesCommand<AddItemResource, ItemResource, ItemContext, ItemEntity> {
+public interface CommandContext<I, O, C extends CommandContext<I, O, C>> {
 
-    public GetItemsCommand(final ItemMapper mapper, final ItemEntityRepository repository) {
-        super("item", mapper::itemEntityToItemResource, repository);
-    }
+    I getInput();
+
+    O getOutput();
+
+    Projection getProjection();
+
+    C withOutput(O output);
 
 }

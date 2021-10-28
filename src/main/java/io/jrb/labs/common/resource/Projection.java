@@ -29,14 +29,10 @@ public enum Projection {
     DETAILS(Detail.class),
     DEEP(Deep.class);
 
-    private final Class<?> view;
+    public final Class<?> view;
 
     Projection(final Class<?> view) {
         this.view = view;
-    }
-
-    public Class<?> getView() {
-        return view;
     }
 
     public static class Summary {

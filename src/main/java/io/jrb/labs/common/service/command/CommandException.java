@@ -28,8 +28,8 @@ public class CommandException extends RuntimeException {
     private final String commandName;
     private final int code;
 
-    public <REQ, RSP> CommandException(
-            final Command<REQ, RSP> command,
+    public <I, O, C extends CommandContext<I, O, C>> CommandException(
+            final Command<I, O, C> command,
             final int code,
             final String message
     ) {
@@ -38,8 +38,8 @@ public class CommandException extends RuntimeException {
         this.commandName = command.getCommandName();
     }
 
-    public <REQ, RSP> CommandException(
-            final Command<REQ, RSP> command,
+    public <I, O, C extends CommandContext<I, O, C>> CommandException(
+            final Command<I, O, C> command,
             final int code,
             final String message,
             final Throwable cause

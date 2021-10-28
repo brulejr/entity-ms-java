@@ -23,19 +23,25 @@
  */
 package io.jrb.labs.entityms.service.command;
 
-import io.jrb.labs.common.service.command.entity.GetEntitiesCommand;
-import io.jrb.labs.entityms.domain.ItemEntity;
-import io.jrb.labs.entityms.mapper.ItemMapper;
-import io.jrb.labs.entityms.repository.ItemEntityRepository;
+import io.jrb.labs.common.resource.Projection;
+import io.jrb.labs.common.service.command.entity.EntityCommandContext;
 import io.jrb.labs.entityms.resource.AddItemResource;
 import io.jrb.labs.entityms.resource.ItemResource;
-import org.springframework.stereotype.Component;
+import lombok.Builder;
+import lombok.Value;
+import lombok.With;
 
-@Component
-public class GetItemsCommand extends GetEntitiesCommand<AddItemResource, ItemResource, ItemContext, ItemEntity> {
+@Value
+@Builder(toBuilder = true)
+public class ItemContext implements EntityCommandContext<AddItemResource, ItemResource, ItemContext> {
 
-    public GetItemsCommand(final ItemMapper mapper, final ItemEntityRepository repository) {
-        super("item", mapper::itemEntityToItemResource, repository);
-    }
+    AddItemResource input;
+
+    @With
+    ItemResource output;
+
+    Projection projection;
+
+    String guid;
 
 }

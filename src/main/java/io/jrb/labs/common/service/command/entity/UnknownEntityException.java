@@ -24,6 +24,7 @@
 package io.jrb.labs.common.service.command.entity;
 
 import io.jrb.labs.common.service.command.Command;
+import io.jrb.labs.common.service.command.CommandContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
@@ -34,7 +35,10 @@ public class UnknownEntityException extends EntityCommandException {
 
     private static final String ERROR_MESSAGE = "Unknown %s entity encountered!";
 
-    public <REQ, RSP> UnknownEntityException(final Command<REQ, RSP> command, final String entityType) {
+    public <I, O, C extends CommandContext<I, O, C>> UnknownEntityException(
+            final Command<I, O, C> command,
+            final String entityType
+    ) {
         super(command, HttpStatus.NOT_FOUND.value(), format(ERROR_MESSAGE, entityType));
     }
 

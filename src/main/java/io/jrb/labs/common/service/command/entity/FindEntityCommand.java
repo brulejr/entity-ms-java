@@ -29,6 +29,7 @@ import io.jrb.labs.common.repository.EntityRepository;
 import io.jrb.labs.common.repository.LookupValueRepository;
 import io.jrb.labs.common.resource.Projection;
 import io.jrb.labs.common.resource.Resource;
+import io.jrb.labs.common.resource.ResourceRequest;
 import io.jrb.labs.common.service.command.Command;
 import reactor.core.publisher.Mono;
 
@@ -37,7 +38,11 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public abstract class FindEntityCommand<O extends Resource<O>, E extends Entity<E>> implements Command<String, O> {
+public abstract class FindEntityCommand<
+        I extends ResourceRequest<I>,
+        O extends Resource<O>,
+        C extends EntityCommandContext<I, O, C>,
+        E extends Entity<E>> implements Command<I, O, C> {
 
     private final String entityType;
     private final Function<E, O> toResourceFn;
@@ -57,11 +62,14 @@ public abstract class FindEntityCommand<O extends Resource<O>, E extends Entity<
     }
 
     @Override
-    public Mono<O> execute(final String guid) {
+    public Mono<C> execute(final C context) {
+        final String guid = context.getGuid();
+        final Projection projection = context.getProjection();
         return repository.findByGuid(guid)
-                .zipWhen(entity -> findValueList(entity.getId(), Projection.DEEP))
+                .zipWhen(entity -> findValueList(entity.getId(), projection))
                 .map(tuple -> toResourceFn.apply(tuple.getT1())
                         .withTags(extractValues(tuple.getT2(), "TAG")))
+                .map(context::withOutput)
                 .onErrorResume(t -> handleException(t, "find " + entityType))
                 .switchIfEmpty(Mono.error(new UnknownEntityException(this, entityType)));
     }

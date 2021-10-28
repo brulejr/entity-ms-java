@@ -30,15 +30,19 @@ import io.jrb.labs.entityms.resource.ItemResource;
 import io.jrb.labs.entityms.service.command.CreateItemCommand;
 import io.jrb.labs.entityms.service.command.FindItemCommand;
 import io.jrb.labs.entityms.service.command.GetItemsCommand;
+import io.jrb.labs.entityms.service.command.ItemContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.json.Jackson2CodecSupport;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Validator;
+
+import java.util.Optional;
 
 import static org.springframework.web.reactive.function.BodyInserters.fromValue;
 
@@ -65,7 +69,11 @@ public class ItemHandler implements RouteHandler {
     public Mono<ServerResponse> createItem(final ServerRequest serverRequest) {
         return requireValidBody((final Mono<AddItemResource> addItemMono) ->
             addItemMono.flatMap(item -> {
-                final Mono<ItemResource> itemResourceMono = createItemCommand.execute(item);
+                final ItemContext context = ItemContext.builder()
+                        .input(item)
+                        .build();
+                final Mono<ItemResource> itemResourceMono = createItemCommand.execute(context)
+                        .map(ItemContext::getOutput);
                 return ServerResponse.status(HttpStatus.CREATED)
                         .contentType(MediaType.APPLICATION_JSON)
                         .hint(Jackson2CodecSupport.JSON_VIEW_HINT, Projection.Detail.class)
@@ -75,19 +83,37 @@ public class ItemHandler implements RouteHandler {
 
     public Mono<ServerResponse> findItem(final ServerRequest serverRequest) {
         final String itemGuid = serverRequest.pathVariable("guid");
-        final Mono<ItemResource> itemResourceMono = findItemCommand.execute(itemGuid);
+        final Projection projection = extractProjection(serverRequest, Projection.DETAILS);
+        final ItemContext context = ItemContext.builder()
+                .guid(itemGuid)
+                .projection(projection)
+                .build();
+        final Mono<ItemResource> itemResourceMono = findItemCommand.execute(context)
+                .map(ItemContext::getOutput);
         return itemResourceMono.flatMap(item ->
                 ServerResponse.ok()
-                        .hint(Jackson2CodecSupport.JSON_VIEW_HINT, Projection.Detail.class)
+                        .hint(Jackson2CodecSupport.JSON_VIEW_HINT, projection.view)
                         .body(fromValue(item)))
                 .switchIfEmpty(ServerResponse.notFound().build());
     }
 
     public Mono<ServerResponse> getAllItems(final ServerRequest serverRequest) {
+        final Projection projection = extractProjection(serverRequest, Projection.SUMMARY);
+        final ItemContext context = ItemContext.builder()
+                .projection(projection)
+                .build();
+        final Flux<ItemResource> contentFlux = Flux.from(getItemsCommand.execute(context))
+                .map(ItemContext::getOutput);
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .hint(Jackson2CodecSupport.JSON_VIEW_HINT, Projection.Summary.class)
-                .body(getItemsCommand.execute(null), ItemResource.class);
+                .hint(Jackson2CodecSupport.JSON_VIEW_HINT, projection.view)
+                .body(contentFlux, ItemResource.class);
+    }
+
+    private Projection extractProjection(final ServerRequest serverRequest, final Projection defaultProjection) {
+        return serverRequest.queryParam("projection")
+                .map(Projection::valueOf)
+                .orElse(defaultProjection);
     }
 
 }

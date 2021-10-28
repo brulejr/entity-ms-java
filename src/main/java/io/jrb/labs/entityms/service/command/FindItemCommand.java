@@ -28,11 +28,12 @@ import io.jrb.labs.common.service.command.entity.FindEntityCommand;
 import io.jrb.labs.entityms.domain.ItemEntity;
 import io.jrb.labs.entityms.mapper.ItemMapper;
 import io.jrb.labs.entityms.repository.ItemEntityRepository;
+import io.jrb.labs.entityms.resource.AddItemResource;
 import io.jrb.labs.entityms.resource.ItemResource;
 import org.springframework.stereotype.Component;
 
 @Component
-public class FindItemCommand extends FindEntityCommand<ItemResource, ItemEntity> {
+public class FindItemCommand extends FindEntityCommand<AddItemResource, ItemResource, ItemContext, ItemEntity> {
 
     public FindItemCommand(
             final ItemMapper mapper,

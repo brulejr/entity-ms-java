@@ -43,7 +43,11 @@ import java.util.UUID;
 import java.util.function.Function;
 
 @Slf4j
-public abstract class CreateEntityCommand<I extends ResourceRequest<I>, O extends Resource<O>, E extends Entity<E>> implements Command<I, O> {
+public abstract class CreateEntityCommand<
+        I extends ResourceRequest<I>,
+        O extends Resource<O>,
+        C extends EntityCommandContext<I, O, C>,
+        E extends Entity<E>> implements Command<I, O, C> {
 
     private static final String UNIQUE_INDEX_ERROR = "Unique index or primary key violation";
 
@@ -68,11 +72,13 @@ public abstract class CreateEntityCommand<I extends ResourceRequest<I>, O extend
     }
 
     @Override
-    public Mono<O> execute(final I request) {
-        return createEntity(request)
-                .zipWhen(entity -> createLookupValues(entity.getId(), "TAG", request.getTags()))
+    public Mono<C> execute(final C context) {
+        final I input = context.getInput();
+        return createEntity(input)
+                .zipWhen(entity -> createLookupValues(entity.getId(), "TAG", input.getTags()))
                 .map(tuple -> toResourceFn.apply(tuple.getT1())
                         .withTags(tuple.getT2()))
+                .map(context::withOutput)
                 .onErrorResume(this::handleException);
     }
 
@@ -103,7 +109,7 @@ public abstract class CreateEntityCommand<I extends ResourceRequest<I>, O extend
         }
     }
 
-    private Mono<O> handleException(final Throwable t) {
+    private Mono<C> handleException(final Throwable t) {
         if (t instanceof DataIntegrityViolationException) {
             final Optional<String> message = Optional.ofNullable(t).map(Throwable::getMessage);
             if (message.isPresent() && message.get().contains(UNIQUE_INDEX_ERROR)) {

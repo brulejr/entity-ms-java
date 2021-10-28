@@ -32,11 +32,11 @@ import static java.lang.String.format;
 /**
  * Defines a command that can be executed.
  *
- * @param <REQ> the request type
- * @param <RSP> the response type
+ * @param <I> the input type
+ * @param <O> the output type
  */
 @FunctionalInterface
-public interface Command<REQ, RSP> {
+public interface Command<I, O, C extends CommandContext<I, O, C>> {
 
     /**
      * Obtains the name for this command.
@@ -65,9 +65,9 @@ public interface Command<REQ, RSP> {
     /**
      * Executes the command.
      *
-     * @param request the command request
-     * @return the command response
+     * @param context the inbound command context
+     * @return the resulting command context
      */
-    Publisher<RSP> execute(REQ request);
+    Publisher<C> execute(C context);
 
 }

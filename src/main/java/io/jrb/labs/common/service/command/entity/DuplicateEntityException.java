@@ -24,6 +24,7 @@
 package io.jrb.labs.common.service.command.entity;
 
 import io.jrb.labs.common.service.command.Command;
+import io.jrb.labs.common.service.command.CommandContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
@@ -34,7 +35,10 @@ public class DuplicateEntityException extends EntityCommandException {
 
     private static final String ERROR_MESSAGE = "Duplicate %s entity encountered!";
 
-    public <REQ, RSP> DuplicateEntityException(final Command<REQ, RSP> command, final String entityType) {
+    public <I, O, C extends CommandContext<I, O, C>> DuplicateEntityException(
+            final Command<I, O, C> command,
+            final String entityType
+    ) {
         super(command, HttpStatus.CONFLICT.value(), format(ERROR_MESSAGE, entityType));
     }
 
