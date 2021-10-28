@@ -23,8 +23,8 @@
  */
 package io.jrb.labs.entityms.service.command;
 
-import io.jrb.labs.common.repository.LookupValueRepository;
 import io.jrb.labs.common.service.command.entity.CreateEntityCommand;
+import io.jrb.labs.common.service.command.entity.LookupValueUtils;
 import io.jrb.labs.entityms.domain.ItemEntity;
 import io.jrb.labs.entityms.mapper.ItemMapper;
 import io.jrb.labs.entityms.repository.ItemEntityRepository;
@@ -38,9 +38,9 @@ public class CreateItemCommand extends CreateEntityCommand<AddItemResource, Item
     public CreateItemCommand(
             final ItemMapper mapper,
             final ItemEntityRepository repository,
-            final LookupValueRepository lookupValueRepository
+            final LookupValueUtils lookupValueUtils
     ) {
-        super("item", mapper::addItemToItemEntity, mapper::itemEntityToItemResource, repository, lookupValueRepository);
+        super("item", mapper::addItemToItemEntity, mapper::itemEntityToItemResource, repository, lookupValueUtils);
     }
 
 }

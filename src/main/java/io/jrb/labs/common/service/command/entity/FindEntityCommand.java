@@ -24,19 +24,14 @@
 package io.jrb.labs.common.service.command.entity;
 
 import io.jrb.labs.common.domain.Entity;
-import io.jrb.labs.common.domain.LookupValue;
 import io.jrb.labs.common.repository.EntityRepository;
-import io.jrb.labs.common.repository.LookupValueRepository;
 import io.jrb.labs.common.resource.Projection;
 import io.jrb.labs.common.resource.Resource;
 import io.jrb.labs.common.resource.ResourceRequest;
 import io.jrb.labs.common.service.command.Command;
 import reactor.core.publisher.Mono;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public abstract class FindEntityCommand<
         I extends ResourceRequest<I>,
@@ -47,18 +42,18 @@ public abstract class FindEntityCommand<
     private final String entityType;
     private final Function<E, O> toResourceFn;
     private final EntityRepository<E> repository;
-    private final LookupValueRepository lookupValueRepository;
+    private final LookupValueUtils lookupValueUtils;
 
     protected FindEntityCommand(
             final String entityType,
             final Function<E, O> toResourceFn,
             final EntityRepository<E> repository,
-            final LookupValueRepository lookupValueRepository
+            final LookupValueUtils lookupValueUtils
     ) {
         this.entityType = entityType;
         this.toResourceFn = toResourceFn;
         this.repository = repository;
-        this.lookupValueRepository = lookupValueRepository;
+        this.lookupValueUtils = lookupValueUtils;
     }
 
     @Override
@@ -66,28 +61,12 @@ public abstract class FindEntityCommand<
         final String guid = context.getGuid();
         final Projection projection = context.getProjection();
         return repository.findByGuid(guid)
-                .zipWhen(entity -> findValueList(entity.getId(), projection))
+                .zipWhen(entity -> lookupValueUtils.findValueList(entity.getId(), projection))
                 .map(tuple -> toResourceFn.apply(tuple.getT1())
-                        .withTags(extractValues(tuple.getT2(), "TAG")))
+                        .withTags(lookupValueUtils.extractValues(tuple.getT2(), "TAG")))
                 .map(context::withOutput)
                 .onErrorResume(t -> handleException(t, "find " + entityType))
                 .switchIfEmpty(Mono.error(new UnknownEntityException(this, entityType)));
-    }
-
-    private List<String> extractValues(final List<LookupValue> values, final String valueType) {
-        return values.stream()
-                .filter(v -> valueType.equals(v.getValueType()))
-                .map(LookupValue::getValue)
-                .collect(Collectors.toList());
-    }
-
-    private Mono<List<LookupValue>> findValueList(final long entityId, final Projection projection) {
-        if (projection == Projection.DEEP) {
-            return lookupValueRepository.findByEntityId(entityId)
-                    .collectList();
-        } else {
-            return Mono.just(Collections.emptyList());
-        }
     }
 
 }

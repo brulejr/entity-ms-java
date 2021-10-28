@@ -27,6 +27,7 @@ import io.r2dbc.spi.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
@@ -44,6 +45,9 @@ import org.springframework.transaction.ReactiveTransactionManager;
 @EnableR2dbcRepositories(basePackages = {
         "io.jrb.labs.common.repository",
         "io.jrb.labs.entityms.repository"
+})
+@ComponentScan(basePackages = {
+        "io.jrb.labs.common.service.command.entity"
 })
 public class DatabaseJavaConfig {
 

@@ -24,9 +24,7 @@
 package io.jrb.labs.common.service.command.entity;
 
 import io.jrb.labs.common.domain.Entity;
-import io.jrb.labs.common.domain.LookupValue;
 import io.jrb.labs.common.repository.EntityRepository;
-import io.jrb.labs.common.repository.LookupValueRepository;
 import io.jrb.labs.common.resource.Resource;
 import io.jrb.labs.common.resource.ResourceRequest;
 import io.jrb.labs.common.service.command.Command;
@@ -34,10 +32,8 @@ import io.jrb.labs.common.service.command.CommandException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
@@ -55,27 +51,27 @@ public abstract class CreateEntityCommand<
     private final Function<I, E> toEntityFn;
     private final Function<E, O> toResourceFn;
     private final EntityRepository<E> repository;
-    private final LookupValueRepository lookupValueRepository;
+    private final LookupValueUtils lookupValueUtils;
 
     protected CreateEntityCommand(
             final String entityType,
             final Function<I, E> toEntityFn,
             final Function<E, O> toResourceFn,
             final EntityRepository<E> repository,
-            final LookupValueRepository lookupValueRepository
+            final LookupValueUtils lookupValueUtils
     ) {
         this.entityType = entityType;
         this.toEntityFn = toEntityFn;
         this.toResourceFn = toResourceFn;
         this.repository = repository;
-        this.lookupValueRepository = lookupValueRepository;
+        this.lookupValueUtils = lookupValueUtils;
     }
 
     @Override
     public Mono<C> execute(final C context) {
         final I input = context.getInput();
         return createEntity(input)
-                .zipWhen(entity -> createLookupValues(entity.getId(), "TAG", input.getTags()))
+                .zipWhen(entity -> lookupValueUtils.createLookupValues(entity.getId(), "TAG", input.getTags()))
                 .map(tuple -> toResourceFn.apply(tuple.getT1())
                         .withTags(tuple.getT2()))
                 .map(context::withOutput)
@@ -87,26 +83,6 @@ public abstract class CreateEntityCommand<
                 .map(toEntityFn)
                 .map(entity -> entity.withGuid(UUID.randomUUID().toString()))
                 .flatMap(repository::save);
-    }
-
-    private Mono<List<String>> createLookupValues(
-            final long entityId,
-            final String type,
-            final List<String> values
-    ) {
-        if (values != null) {
-            return Flux.fromIterable(values)
-                    .map(value -> LookupValue.builder()
-                            .entityId(entityId)
-                            .valueType(type)
-                            .value(value)
-                            .build())
-                    .flatMap(lookupValueRepository::save)
-                    .map(LookupValue::getValue)
-                    .collectList();
-        } else {
-            return Mono.empty();
-        }
     }
 
     private Mono<C> handleException(final Throwable t) {

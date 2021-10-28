@@ -41,15 +41,18 @@ public abstract class GetEntitiesCommand<
     private final String entityType;
     private final Function<E, O> toResourceFn;
     private final EntityRepository<E> repository;
+    private final LookupValueUtils lookupValueUtils;
 
     protected GetEntitiesCommand(
             final String entityType,
             final Function<E, O> toResourceFn,
-            final EntityRepository<E> repository
+            final EntityRepository<E> repository,
+            final LookupValueUtils lookupValueUtils
     ) {
         this.entityType = entityType;
         this.toResourceFn = toResourceFn;
         this.repository = repository;
+        this.lookupValueUtils = lookupValueUtils;
     }
 
     @Override
