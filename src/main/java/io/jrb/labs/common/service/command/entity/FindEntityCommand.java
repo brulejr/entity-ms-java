@@ -61,9 +61,7 @@ public abstract class FindEntityCommand<
         final String guid = context.getGuid();
         final Projection projection = context.getProjection();
         return repository.findByGuid(guid)
-                .zipWhen(entity -> lookupValueUtils.findValueList(entity.getId(), projection))
-                .map(tuple -> toResourceFn.apply(tuple.getT1())
-                        .withTags(lookupValueUtils.extractValues(tuple.getT2(), "TAG")))
+                .flatMap(e -> lookupValueUtils.addLookupValues(e, toResourceFn, projection))
                 .map(context::withOutput)
                 .onErrorResume(t -> handleException(t, "find " + entityType))
                 .switchIfEmpty(Mono.error(new UnknownEntityException(this, entityType)));

@@ -23,15 +23,18 @@
  */
 package io.jrb.labs.common.service.command.entity;
 
+import io.jrb.labs.common.domain.Entity;
 import io.jrb.labs.common.domain.LookupValue;
 import io.jrb.labs.common.repository.LookupValueRepository;
 import io.jrb.labs.common.resource.Projection;
+import io.jrb.labs.common.resource.Resource;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
@@ -41,6 +44,17 @@ public class LookupValueUtils {
 
     public LookupValueUtils(final LookupValueRepository lookupValueRepository) {
         this.lookupValueRepository = lookupValueRepository;
+    }
+
+    public <E extends Entity<E>, O extends Resource<O>> Mono<O> addLookupValues(
+            final E entity,
+            final Function<E, O> toResourceFn,
+            final Projection projection
+    ) {
+        return Mono.just(entity)
+                .zipWhen(e -> findValueList(e.getId(), projection))
+                .map(tuple -> toResourceFn.apply(tuple.getT1())
+                        .withTags(extractValues(tuple.getT2(), "TAG")));
     }
 
     public Mono<List<String>> createLookupValues(final long entityId, final String type, final List<String> values) {

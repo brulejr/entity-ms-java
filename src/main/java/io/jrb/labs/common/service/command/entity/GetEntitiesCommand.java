@@ -25,6 +25,7 @@ package io.jrb.labs.common.service.command.entity;
 
 import io.jrb.labs.common.domain.Entity;
 import io.jrb.labs.common.repository.EntityRepository;
+import io.jrb.labs.common.resource.Projection;
 import io.jrb.labs.common.resource.Resource;
 import io.jrb.labs.common.resource.ResourceRequest;
 import io.jrb.labs.common.service.command.Command;
@@ -57,8 +58,9 @@ public abstract class GetEntitiesCommand<
 
     @Override
     public Publisher<C> execute(final C context) {
+        final Projection projection = context.getProjection();
         return repository.findAll()
-                .map(toResourceFn)
+                .flatMap(e -> lookupValueUtils.addLookupValues(e, toResourceFn, projection))
                 .map(context::withOutput)
                 .onErrorResume(t -> handleException(t, "retrieve all " + entityType));
     }
