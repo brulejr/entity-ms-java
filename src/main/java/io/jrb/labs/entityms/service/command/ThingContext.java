@@ -25,7 +25,7 @@ package io.jrb.labs.entityms.service.command;
 
 import io.jrb.labs.common.resource.Projection;
 import io.jrb.labs.common.service.command.entity.EntityCommandContext;
-import io.jrb.labs.entityms.resource.AddThingResource;
+import io.jrb.labs.entityms.resource.ThingRequest;
 import io.jrb.labs.entityms.resource.ThingResource;
 import lombok.Builder;
 import lombok.Value;
@@ -33,9 +33,9 @@ import lombok.With;
 
 @Value
 @Builder(toBuilder = true)
-public class ThingContext implements EntityCommandContext<AddThingResource, ThingResource, ThingContext> {
+public class ThingContext implements EntityCommandContext<ThingRequest, ThingResource, ThingContext> {
 
-    AddThingResource input;
+    ThingRequest input;
 
     @With
     ThingResource output;

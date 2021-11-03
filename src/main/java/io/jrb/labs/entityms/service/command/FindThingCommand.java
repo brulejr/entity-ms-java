@@ -28,12 +28,12 @@ import io.jrb.labs.common.service.command.entity.LookupValueUtils;
 import io.jrb.labs.entityms.domain.ThingEntity;
 import io.jrb.labs.entityms.mapper.ThingMapper;
 import io.jrb.labs.entityms.repository.ThingEntityRepository;
-import io.jrb.labs.entityms.resource.AddThingResource;
+import io.jrb.labs.entityms.resource.ThingRequest;
 import io.jrb.labs.entityms.resource.ThingResource;
 import org.springframework.stereotype.Component;
 
 @Component
-public class FindThingCommand extends FindEntityCommand<AddThingResource, ThingResource, ThingContext, ThingEntity> {
+public class FindThingCommand extends FindEntityCommand<ThingRequest, ThingResource, ThingContext, ThingEntity> {
 
     public FindThingCommand(
             final ThingMapper mapper,

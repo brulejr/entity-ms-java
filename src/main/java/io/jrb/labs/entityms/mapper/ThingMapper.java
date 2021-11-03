@@ -24,14 +24,14 @@
 package io.jrb.labs.entityms.mapper;
 
 import io.jrb.labs.entityms.domain.ThingEntity;
-import io.jrb.labs.entityms.resource.AddThingResource;
+import io.jrb.labs.entityms.resource.ThingRequest;
 import io.jrb.labs.entityms.resource.ThingResource;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface ThingMapper {
 
-    ThingEntity addThingToThingEntity(AddThingResource addResource);
+    ThingEntity thingRequestToThingEntity(ThingRequest thingRequest);
 
     ThingResource thingEntityToThingResource(ThingEntity entity);
 

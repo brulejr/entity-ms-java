@@ -28,21 +28,21 @@ import io.jrb.labs.common.service.command.entity.LookupValueUtils;
 import io.jrb.labs.entityms.domain.ThingEntity;
 import io.jrb.labs.entityms.mapper.ThingMapper;
 import io.jrb.labs.entityms.repository.ThingEntityRepository;
-import io.jrb.labs.entityms.resource.AddThingResource;
+import io.jrb.labs.entityms.resource.ThingRequest;
 import io.jrb.labs.entityms.resource.ThingResource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class CreateThingCommand extends CreateEntityCommand<AddThingResource, ThingResource, ThingContext, ThingEntity> {
+public class CreateThingCommand extends CreateEntityCommand<ThingRequest, ThingResource, ThingContext, ThingEntity> {
 
     public CreateThingCommand(
             final ThingMapper mapper,
             final ThingEntityRepository repository,
             final LookupValueUtils lookupValueUtils
     ) {
-        super(mapper::addThingToThingEntity, mapper::thingEntityToThingResource, repository, lookupValueUtils);
+        super(mapper::thingRequestToThingEntity, mapper::thingEntityToThingResource, repository, lookupValueUtils);
     }
 
 }

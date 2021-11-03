@@ -36,7 +36,7 @@ import java.util.List;
 @Value
 @Builder
 @Jacksonized
-public class AddThingResource implements ResourceRequest<AddThingResource> {
+public class ThingRequest implements ResourceRequest<ThingRequest> {
 
     @NotBlank(message = "Type is required")
     @Size(min = 3, max = 64, message = "Type must be between 3 and 64 characters")

@@ -25,7 +25,7 @@ package io.jrb.labs.entityms.web;
 
 import io.jrb.labs.common.resource.Projection;
 import io.jrb.labs.common.web.RouteHandler;
-import io.jrb.labs.entityms.resource.AddThingResource;
+import io.jrb.labs.entityms.resource.ThingRequest;
 import io.jrb.labs.entityms.resource.ThingResource;
 import io.jrb.labs.entityms.service.command.CreateThingCommand;
 import io.jrb.labs.entityms.service.command.FindThingCommand;
@@ -66,7 +66,7 @@ public class ThingHandler implements RouteHandler {
 
     public Mono<ServerResponse> createThing(final ServerRequest serverRequest) {
         final String entityType = serverRequest.pathVariable("entityType");
-        return requireValidBody((final Mono<AddThingResource> addThingMono) ->
+        return requireValidBody((final Mono<ThingRequest> addThingMono) ->
             addThingMono.flatMap(thing -> {
                 final ThingContext context = ThingContext.builder()
                         .entityType(entityType)
@@ -78,7 +78,7 @@ public class ThingHandler implements RouteHandler {
                         .contentType(MediaType.APPLICATION_JSON)
                         .hint(Jackson2CodecSupport.JSON_VIEW_HINT, Projection.Detail.class)
                         .body(thingResourceMono, ThingResource.class);
-            }), serverRequest, AddThingResource.class, validator);
+            }), serverRequest, ThingRequest.class, validator);
     }
 
     public Mono<ServerResponse> findThing(final ServerRequest serverRequest) {
