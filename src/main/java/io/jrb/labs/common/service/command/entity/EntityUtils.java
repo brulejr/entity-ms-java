@@ -41,12 +41,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
-public class LookupValueUtils {
+public class EntityUtils {
 
     private final LookupValueRepository lookupValueRepository;
     private final EntityServiceProperties entSvcProps;
 
-    public LookupValueUtils(
+    public EntityUtils(
             final LookupValueRepository lookupValueRepository,
             final EntityServiceProperties entSvcProps
     ) {

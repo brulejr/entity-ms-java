@@ -42,27 +42,27 @@ public abstract class FindEntityCommand<
 
     private final Function<E, O> toResourceFn;
     private final EntityRepository<E> repository;
-    private final LookupValueUtils lookupValueUtils;
+    private final EntityUtils entityUtils;
 
     protected FindEntityCommand(
             final Function<E, O> toResourceFn,
             final EntityRepository<E> repository,
-            final LookupValueUtils lookupValueUtils
+            final EntityUtils entityUtils
     ) {
         this.toResourceFn = toResourceFn;
         this.repository = repository;
-        this.lookupValueUtils = lookupValueUtils;
+        this.entityUtils = entityUtils;
     }
 
     @Override
     public Mono<C> execute(final C context) {
         final String entityTypeName = context.getEntityType();
-        final EntityType entityType = lookupValueUtils.findEntityType(entityTypeName);
+        final EntityType entityType = entityUtils.findEntityType(entityTypeName);
 
         final String guid = context.getGuid();
         final Projection projection = context.getProjection();
         return repository.findByGuid(guid)
-                .flatMap(e -> lookupValueUtils.addLookupValues(e, toResourceFn, projection))
+                .flatMap(e -> entityUtils.addLookupValues(e, toResourceFn, projection))
                 .map(context::withOutput)
                 .onErrorResume(t -> handleException(t, "find " + entityTypeName))
                 .switchIfEmpty(Mono.error(new UnknownEntityException(this, entityTypeName)));

@@ -24,7 +24,7 @@
 package io.jrb.labs.entityms.service.command;
 
 import io.jrb.labs.common.service.command.entity.FindEntityCommand;
-import io.jrb.labs.common.service.command.entity.LookupValueUtils;
+import io.jrb.labs.common.service.command.entity.EntityUtils;
 import io.jrb.labs.entityms.domain.ThingEntity;
 import io.jrb.labs.entityms.mapper.ThingMapper;
 import io.jrb.labs.entityms.repository.ThingEntityRepository;
@@ -38,9 +38,9 @@ public class FindThingCommand extends FindEntityCommand<ThingRequest, ThingResou
     public FindThingCommand(
             final ThingMapper mapper,
             final ThingEntityRepository repository,
-            final LookupValueUtils lookupValueUtils
+            final EntityUtils entityUtils
     ) {
-        super(mapper::thingEntityToThingResource, repository, lookupValueUtils);
+        super(mapper::thingEntityToThingResource, repository, entityUtils);
     }
 
 }

@@ -51,28 +51,28 @@ public abstract class CreateEntityCommand<
     private final Function<I, E> toEntityFn;
     private final Function<E, O> toResourceFn;
     private final EntityRepository<E> repository;
-    private final LookupValueUtils lookupValueUtils;
+    private final EntityUtils entityUtils;
 
     protected CreateEntityCommand(
             final Function<I, E> toEntityFn,
             final Function<E, O> toResourceFn,
             final EntityRepository<E> repository,
-            final LookupValueUtils lookupValueUtils
+            final EntityUtils entityUtils
     ) {
         this.toEntityFn = toEntityFn;
         this.toResourceFn = toResourceFn;
         this.repository = repository;
-        this.lookupValueUtils = lookupValueUtils;
+        this.entityUtils = entityUtils;
     }
 
     @Override
     public Mono<C> execute(final C context) {
         final String entityTypeName = context.getEntityType();
-        final EntityType entityType = lookupValueUtils.findEntityType(entityTypeName);
+        final EntityType entityType = entityUtils.findEntityType(entityTypeName);
 
         final I input = context.getInput();
         return createEntity(input)
-                .zipWhen(entity -> lookupValueUtils.createLookupValues(entity.getId(), "TAG", input.getTags()))
+                .zipWhen(entity -> entityUtils.createLookupValues(entity.getId(), "TAG", input.getTags()))
                 .map(tuple -> toResourceFn.apply(tuple.getT1())
                         .withTags(tuple.getT2()))
                 .map(context::withOutput)

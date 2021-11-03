@@ -42,26 +42,26 @@ public abstract class GetEntitiesCommand<
 
     private final Function<E, O> toResourceFn;
     private final EntityRepository<E> repository;
-    private final LookupValueUtils lookupValueUtils;
+    private final EntityUtils entityUtils;
 
     protected GetEntitiesCommand(
             final Function<E, O> toResourceFn,
             final EntityRepository<E> repository,
-            final LookupValueUtils lookupValueUtils
+            final EntityUtils entityUtils
     ) {
         this.toResourceFn = toResourceFn;
         this.repository = repository;
-        this.lookupValueUtils = lookupValueUtils;
+        this.entityUtils = entityUtils;
     }
 
     @Override
     public Publisher<C> execute(final C context) {
         final String entityTypeName = context.getEntityType();
-        final EntityType entityType = lookupValueUtils.findEntityType(entityTypeName);
+        final EntityType entityType = entityUtils.findEntityType(entityTypeName);
 
         final Projection projection = context.getProjection();
         return repository.findAll()
-                .flatMap(e -> lookupValueUtils.addLookupValues(e, toResourceFn, projection))
+                .flatMap(e -> entityUtils.addLookupValues(e, toResourceFn, projection))
                 .map(context::withOutput)
                 .onErrorResume(t -> handleException(t, "retrieve all " + entityTypeName));
     }
