@@ -23,32 +23,30 @@
  */
 package io.jrb.labs.entityms.resource;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonView;
-import io.jrb.labs.common.resource.Projection;
-import io.jrb.labs.common.resource.Resource;
+import io.jrb.labs.common.resource.ResourceRequest;
 import lombok.Builder;
+import lombok.Singular;
 import lombok.Value;
-import lombok.With;
+import lombok.extern.jackson.Jacksonized;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 @Value
 @Builder
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class ItemResource implements Resource<ItemResource> {
+@Jacksonized
+public class AddThingResource implements ResourceRequest<AddThingResource> {
 
-    @JsonView(Projection.Summary.class)
-    String guid;
-
-    @JsonView(Projection.Summary.class)
+    @NotBlank(message = "Type is required")
+    @Size(min = 3, max = 64, message = "Type must be between 3 and 64 characters")
     String type;
 
-    @JsonView(Projection.Summary.class)
+    @NotBlank(message = "Name is required")
+    @Size(min = 4, max = 64, message = "Name must be between 4 and 64 characters")
     String name;
 
-    @JsonView(Projection.Detail.class)
-    @With
+    @Singular
     List<String> tags;
 
 }

@@ -21,29 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.entityms.config;
+package io.jrb.labs.entityms.repository;
 
-import io.jrb.labs.common.traceability.TraceabilityJavaConfig;
-import io.jrb.labs.entityms.web.ThingRoutes;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.web.reactive.function.server.RouterFunction;
-import org.springframework.web.reactive.function.server.ServerResponse;
+import io.jrb.labs.common.repository.EntityRepository;
+import io.jrb.labs.entityms.domain.ThingEntity;
+import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Mono;
 
-import static org.springframework.web.reactive.function.server.RouterFunctions.route;
+@Repository
+public interface ThingEntityRepository extends EntityRepository<ThingEntity> {
 
-@Configuration
-@Import({
-        TraceabilityJavaConfig.class
-})
-public class WebJavaConfig {
-
-    @Bean
-    RouterFunction<ServerResponse> routes(final ThingRoutes thingRoutes) {
-        return route()
-                .add(thingRoutes.routes())
-                .build();
-    }
+    Mono<ThingEntity> findByGuid(String guid);
 
 }

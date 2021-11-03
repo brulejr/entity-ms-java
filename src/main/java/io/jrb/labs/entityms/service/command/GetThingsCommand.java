@@ -23,24 +23,24 @@
  */
 package io.jrb.labs.entityms.service.command;
 
-import io.jrb.labs.common.service.command.entity.FindEntityCommand;
+import io.jrb.labs.common.service.command.entity.GetEntitiesCommand;
 import io.jrb.labs.common.service.command.entity.LookupValueUtils;
-import io.jrb.labs.entityms.domain.ItemEntity;
-import io.jrb.labs.entityms.mapper.ItemMapper;
-import io.jrb.labs.entityms.repository.ItemEntityRepository;
-import io.jrb.labs.entityms.resource.AddItemResource;
-import io.jrb.labs.entityms.resource.ItemResource;
+import io.jrb.labs.entityms.domain.ThingEntity;
+import io.jrb.labs.entityms.mapper.ThingMapper;
+import io.jrb.labs.entityms.repository.ThingEntityRepository;
+import io.jrb.labs.entityms.resource.AddThingResource;
+import io.jrb.labs.entityms.resource.ThingResource;
 import org.springframework.stereotype.Component;
 
 @Component
-public class FindItemCommand extends FindEntityCommand<AddItemResource, ItemResource, ItemContext, ItemEntity> {
+public class GetThingsCommand extends GetEntitiesCommand<AddThingResource, ThingResource, ThingContext, ThingEntity> {
 
-    public FindItemCommand(
-            final ItemMapper mapper,
-            final ItemEntityRepository repository,
+    public GetThingsCommand(
+            final ThingMapper mapper,
+            final ThingEntityRepository repository,
             final LookupValueUtils lookupValueUtils
     ) {
-        super(mapper::itemEntityToItemResource, repository, lookupValueUtils);
+        super(mapper::thingEntityToThingResource, repository, lookupValueUtils);
     }
 
 }

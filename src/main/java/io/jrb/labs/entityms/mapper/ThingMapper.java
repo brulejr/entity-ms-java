@@ -21,26 +21,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.entityms.service.command;
+package io.jrb.labs.entityms.mapper;
 
-import io.jrb.labs.common.service.command.entity.GetEntitiesCommand;
-import io.jrb.labs.common.service.command.entity.LookupValueUtils;
-import io.jrb.labs.entityms.domain.ItemEntity;
-import io.jrb.labs.entityms.mapper.ItemMapper;
-import io.jrb.labs.entityms.repository.ItemEntityRepository;
-import io.jrb.labs.entityms.resource.AddItemResource;
-import io.jrb.labs.entityms.resource.ItemResource;
-import org.springframework.stereotype.Component;
+import io.jrb.labs.entityms.domain.ThingEntity;
+import io.jrb.labs.entityms.resource.AddThingResource;
+import io.jrb.labs.entityms.resource.ThingResource;
+import org.mapstruct.Mapper;
 
-@Component
-public class GetItemsCommand extends GetEntitiesCommand<AddItemResource, ItemResource, ItemContext, ItemEntity> {
+@Mapper(componentModel = "spring")
+public interface ThingMapper {
 
-    public GetItemsCommand(
-            final ItemMapper mapper,
-            final ItemEntityRepository repository,
-            final LookupValueUtils lookupValueUtils
-    ) {
-        super(mapper::itemEntityToItemResource, repository, lookupValueUtils);
-    }
+    ThingEntity addThingToThingEntity(AddThingResource addResource);
+
+    ThingResource thingEntityToThingResource(ThingEntity entity);
 
 }

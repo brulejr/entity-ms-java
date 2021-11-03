@@ -21,16 +21,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.entityms.repository;
+package io.jrb.labs.entityms.resource;
 
-import io.jrb.labs.common.repository.EntityRepository;
-import io.jrb.labs.entityms.domain.ItemEntity;
-import org.springframework.stereotype.Repository;
-import reactor.core.publisher.Mono;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonView;
+import io.jrb.labs.common.resource.Projection;
+import io.jrb.labs.common.resource.Resource;
+import lombok.Builder;
+import lombok.Value;
+import lombok.With;
 
-@Repository
-public interface ItemEntityRepository extends EntityRepository<ItemEntity> {
+import java.util.List;
 
-    Mono<ItemEntity> findByGuid(String guid);
+@Value
+@Builder
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+public class ThingResource implements Resource<ThingResource> {
+
+    @JsonView(Projection.Summary.class)
+    String guid;
+
+    @JsonView(Projection.Summary.class)
+    String type;
+
+    @JsonView(Projection.Summary.class)
+    String name;
+
+    @JsonView(Projection.Detail.class)
+    @With
+    List<String> tags;
 
 }

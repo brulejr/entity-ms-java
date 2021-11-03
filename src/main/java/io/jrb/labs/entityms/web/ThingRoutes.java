@@ -21,28 +21,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.entityms.service.command;
+package io.jrb.labs.entityms.web;
 
-import io.jrb.labs.common.service.command.entity.CreateEntityCommand;
-import io.jrb.labs.common.service.command.entity.LookupValueUtils;
-import io.jrb.labs.entityms.domain.ItemEntity;
-import io.jrb.labs.entityms.mapper.ItemMapper;
-import io.jrb.labs.entityms.repository.ItemEntityRepository;
-import io.jrb.labs.entityms.resource.AddItemResource;
-import io.jrb.labs.entityms.resource.ItemResource;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.server.RouterFunction;
+import org.springframework.web.reactive.function.server.ServerResponse;
+
+import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
 @Component
-@Slf4j
-public class CreateItemCommand extends CreateEntityCommand<AddItemResource, ItemResource, ItemContext, ItemEntity> {
+public class ThingRoutes {
 
-    public CreateItemCommand(
-            final ItemMapper mapper,
-            final ItemEntityRepository repository,
-            final LookupValueUtils lookupValueUtils
-    ) {
-        super(mapper::addItemToItemEntity, mapper::itemEntityToItemResource, repository, lookupValueUtils);
+    private final ThingHandler thingHandler;
+
+    public ThingRoutes(final ThingHandler thingHandler) {
+        this.thingHandler = thingHandler;
+    }
+
+    public RouterFunction<ServerResponse> routes() {
+        return route()
+                .add(createThingRoute())
+                .add(findThingRoute())
+                .add(retrieveThingsRoute())
+                .build();
+    }
+
+    private RouterFunction<ServerResponse> createThingRoute() {
+        return route().POST("/{entityType}", thingHandler::createThing)
+                .build();
+    }
+
+    private RouterFunction<ServerResponse> findThingRoute() {
+        return route().GET("/{entityType}/{guid}", thingHandler::findThing)
+                .build();
+    }
+
+    private RouterFunction<ServerResponse> retrieveThingsRoute() {
+        return route().GET("/{entityType}", thingHandler::getAllThings)
+                .build();
     }
 
 }

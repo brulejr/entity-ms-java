@@ -21,32 +21,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.entityms.resource;
+package io.jrb.labs.entityms.service.command;
 
-import io.jrb.labs.common.resource.ResourceRequest;
-import lombok.Builder;
-import lombok.Singular;
-import lombok.Value;
-import lombok.extern.jackson.Jacksonized;
+import io.jrb.labs.common.service.command.entity.FindEntityCommand;
+import io.jrb.labs.common.service.command.entity.LookupValueUtils;
+import io.jrb.labs.entityms.domain.ThingEntity;
+import io.jrb.labs.entityms.mapper.ThingMapper;
+import io.jrb.labs.entityms.repository.ThingEntityRepository;
+import io.jrb.labs.entityms.resource.AddThingResource;
+import io.jrb.labs.entityms.resource.ThingResource;
+import org.springframework.stereotype.Component;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
-import java.util.List;
+@Component
+public class FindThingCommand extends FindEntityCommand<AddThingResource, ThingResource, ThingContext, ThingEntity> {
 
-@Value
-@Builder
-@Jacksonized
-public class AddItemResource implements ResourceRequest<AddItemResource> {
-
-    @NotBlank(message = "Type is required")
-    @Size(min = 3, max = 64, message = "Type must be between 3 and 64 characters")
-    String type;
-
-    @NotBlank(message = "Name is required")
-    @Size(min = 4, max = 64, message = "Name must be between 4 and 64 characters")
-    String name;
-
-    @Singular
-    List<String> tags;
+    public FindThingCommand(
+            final ThingMapper mapper,
+            final ThingEntityRepository repository,
+            final LookupValueUtils lookupValueUtils
+    ) {
+        super(mapper::thingEntityToThingResource, repository, lookupValueUtils);
+    }
 
 }

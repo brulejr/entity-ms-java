@@ -25,12 +25,12 @@ package io.jrb.labs.entityms.web;
 
 import io.jrb.labs.common.resource.Projection;
 import io.jrb.labs.common.web.RouteHandler;
-import io.jrb.labs.entityms.resource.AddItemResource;
-import io.jrb.labs.entityms.resource.ItemResource;
-import io.jrb.labs.entityms.service.command.CreateItemCommand;
-import io.jrb.labs.entityms.service.command.FindItemCommand;
-import io.jrb.labs.entityms.service.command.GetItemsCommand;
-import io.jrb.labs.entityms.service.command.ItemContext;
+import io.jrb.labs.entityms.resource.AddThingResource;
+import io.jrb.labs.entityms.resource.ThingResource;
+import io.jrb.labs.entityms.service.command.CreateThingCommand;
+import io.jrb.labs.entityms.service.command.FindThingCommand;
+import io.jrb.labs.entityms.service.command.GetThingsCommand;
+import io.jrb.labs.entityms.service.command.ThingContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.json.Jackson2CodecSupport;
@@ -42,78 +42,76 @@ import reactor.core.publisher.Mono;
 
 import javax.validation.Validator;
 
-import java.util.Optional;
-
 import static org.springframework.web.reactive.function.BodyInserters.fromValue;
 
 @Component
-public class ItemHandler implements RouteHandler {
+public class ThingHandler implements RouteHandler {
 
-    private final CreateItemCommand createItemCommand;
-    private final FindItemCommand findItemCommand;
-    private final GetItemsCommand getItemsCommand;
+    private final CreateThingCommand createThingCommand;
+    private final FindThingCommand findThingCommand;
+    private final GetThingsCommand getThingsCommand;
     private final Validator validator;
 
-    public ItemHandler(
-            final CreateItemCommand createItemCommand,
-            final FindItemCommand findItemCommand,
-            final GetItemsCommand getItemsCommand,
+    public ThingHandler(
+            final CreateThingCommand createThingCommand,
+            final FindThingCommand findThingCommand,
+            final GetThingsCommand getThingsCommand,
             final Validator validator
     ) {
-        this.createItemCommand = createItemCommand;
-        this.findItemCommand = findItemCommand;
-        this.getItemsCommand = getItemsCommand;
+        this.createThingCommand = createThingCommand;
+        this.findThingCommand = findThingCommand;
+        this.getThingsCommand = getThingsCommand;
         this.validator = validator;
     }
 
-    public Mono<ServerResponse> createItem(final ServerRequest serverRequest) {
+    public Mono<ServerResponse> createThing(final ServerRequest serverRequest) {
         final String entityType = serverRequest.pathVariable("entityType");
-        return requireValidBody((final Mono<AddItemResource> addItemMono) ->
-            addItemMono.flatMap(item -> {
-                final ItemContext context = ItemContext.builder()
+        return requireValidBody((final Mono<AddThingResource> addThingMono) ->
+            addThingMono.flatMap(thing -> {
+                final ThingContext context = ThingContext.builder()
                         .entityType(entityType)
-                        .input(item)
+                        .input(thing)
                         .build();
-                final Mono<ItemResource> itemResourceMono = createItemCommand.execute(context)
-                        .map(ItemContext::getOutput);
+                final Mono<ThingResource> thingResourceMono = createThingCommand.execute(context)
+                        .map(ThingContext::getOutput);
                 return ServerResponse.status(HttpStatus.CREATED)
                         .contentType(MediaType.APPLICATION_JSON)
                         .hint(Jackson2CodecSupport.JSON_VIEW_HINT, Projection.Detail.class)
-                        .body(itemResourceMono, ItemResource.class);
-            }), serverRequest, AddItemResource.class, validator);
+                        .body(thingResourceMono, ThingResource.class);
+            }), serverRequest, AddThingResource.class, validator);
     }
 
-    public Mono<ServerResponse> findItem(final ServerRequest serverRequest) {
+    public Mono<ServerResponse> findThing(final ServerRequest serverRequest) {
         final String entityType = serverRequest.pathVariable("entityType");
-        final String itemGuid = serverRequest.pathVariable("guid");
+        final String thingGuid = serverRequest.pathVariable("guid");
         final Projection projection = extractProjection(serverRequest, Projection.DETAILS);
-        final ItemContext context = ItemContext.builder()
+        final ThingContext context = ThingContext.builder()
                 .entityType(entityType)
-                .guid(itemGuid)
+                .guid(thingGuid)
                 .projection(projection)
                 .build();
-        final Mono<ItemResource> itemResourceMono = findItemCommand.execute(context)
-                .map(ItemContext::getOutput);
-        return itemResourceMono.flatMap(item ->
+        final Mono<ThingResource> thingResourceMono = findThingCommand.execute(context)
+                .map(ThingContext::getOutput);
+        return thingResourceMono.flatMap(thing ->
                 ServerResponse.ok()
                         .hint(Jackson2CodecSupport.JSON_VIEW_HINT, projection.view)
-                        .body(fromValue(item)))
+                        .body(fromValue(thing)))
                 .switchIfEmpty(ServerResponse.notFound().build());
     }
 
-    public Mono<ServerResponse> getAllItems(final ServerRequest serverRequest) {
+    public Mono<ServerResponse> getAllThings(final ServerRequest serverRequest) {
         final String entityType = serverRequest.pathVariable("entityType");
         final Projection projection = extractProjection(serverRequest, Projection.SUMMARY);
-        final ItemContext context = ItemContext.builder()
+        final ThingContext context = ThingContext.builder()
                 .entityType(entityType)
                 .projection(projection)
                 .build();
-        final Flux<ItemResource> contentFlux = Flux.from(getItemsCommand.execute(context))
-                .map(ItemContext::getOutput);
+        final Flux<ThingResource> contentFlux = Flux.from(getThingsCommand.execute(context))
+                .map(ThingContext::getOutput);
         return ServerResponse.ok()
                 .contentType(MediaType.APPLICATION_JSON)
                 .hint(Jackson2CodecSupport.JSON_VIEW_HINT, projection.view)
-                .body(contentFlux, ItemResource.class);
+                .body(contentFlux, ThingResource.class);
     }
 
     private Projection extractProjection(final ServerRequest serverRequest, final Projection defaultProjection) {

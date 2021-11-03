@@ -21,33 +21,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.entityms.domain;
+package io.jrb.labs.entityms.service.command;
 
-import io.jrb.labs.common.domain.Entity;
+import io.jrb.labs.common.resource.Projection;
+import io.jrb.labs.common.service.command.entity.EntityCommandContext;
+import io.jrb.labs.entityms.resource.AddThingResource;
+import io.jrb.labs.entityms.resource.ThingResource;
 import lombok.Builder;
 import lombok.Value;
 import lombok.With;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.Table;
 
 @Value
-@Builder
-@Table(value = "t_item")
-public class ItemEntity implements Entity<ItemEntity> {
+@Builder(toBuilder = true)
+public class ThingContext implements EntityCommandContext<AddThingResource, ThingResource, ThingContext> {
 
-    @Id
-    @Column(value = "it_id")
-    Long id;
+    AddThingResource input;
 
     @With
-    @Column(value = "it_guid")
+    ThingResource output;
+
+    Projection projection;
+
+    String entityType;
+
     String guid;
-
-    @Column(value = "it_type")
-    String type;
-
-    @Column(value = "it_name")
-    String name;
 
 }
