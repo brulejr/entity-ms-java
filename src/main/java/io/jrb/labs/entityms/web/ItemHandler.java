@@ -67,9 +67,11 @@ public class ItemHandler implements RouteHandler {
     }
 
     public Mono<ServerResponse> createItem(final ServerRequest serverRequest) {
+        final String entityType = serverRequest.pathVariable("entityType");
         return requireValidBody((final Mono<AddItemResource> addItemMono) ->
             addItemMono.flatMap(item -> {
                 final ItemContext context = ItemContext.builder()
+                        .entityType(entityType)
                         .input(item)
                         .build();
                 final Mono<ItemResource> itemResourceMono = createItemCommand.execute(context)
@@ -82,9 +84,11 @@ public class ItemHandler implements RouteHandler {
     }
 
     public Mono<ServerResponse> findItem(final ServerRequest serverRequest) {
+        final String entityType = serverRequest.pathVariable("entityType");
         final String itemGuid = serverRequest.pathVariable("guid");
         final Projection projection = extractProjection(serverRequest, Projection.DETAILS);
         final ItemContext context = ItemContext.builder()
+                .entityType(entityType)
                 .guid(itemGuid)
                 .projection(projection)
                 .build();
@@ -98,8 +102,10 @@ public class ItemHandler implements RouteHandler {
     }
 
     public Mono<ServerResponse> getAllItems(final ServerRequest serverRequest) {
+        final String entityType = serverRequest.pathVariable("entityType");
         final Projection projection = extractProjection(serverRequest, Projection.SUMMARY);
         final ItemContext context = ItemContext.builder()
+                .entityType(entityType)
                 .projection(projection)
                 .build();
         final Flux<ItemResource> contentFlux = Flux.from(getItemsCommand.execute(context))

@@ -29,6 +29,7 @@ import io.jrb.labs.common.resource.Resource;
 import io.jrb.labs.common.resource.ResourceRequest;
 import io.jrb.labs.common.service.command.Command;
 import io.jrb.labs.common.service.command.CommandException;
+import io.jrb.labs.common.service.command.entity.config.EntityType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -47,20 +48,17 @@ public abstract class CreateEntityCommand<
 
     private static final String UNIQUE_INDEX_ERROR = "Unique index or primary key violation";
 
-    private final String entityType;
     private final Function<I, E> toEntityFn;
     private final Function<E, O> toResourceFn;
     private final EntityRepository<E> repository;
     private final LookupValueUtils lookupValueUtils;
 
     protected CreateEntityCommand(
-            final String entityType,
             final Function<I, E> toEntityFn,
             final Function<E, O> toResourceFn,
             final EntityRepository<E> repository,
             final LookupValueUtils lookupValueUtils
     ) {
-        this.entityType = entityType;
         this.toEntityFn = toEntityFn;
         this.toResourceFn = toResourceFn;
         this.repository = repository;
@@ -69,13 +67,16 @@ public abstract class CreateEntityCommand<
 
     @Override
     public Mono<C> execute(final C context) {
+        final String entityTypeName = context.getEntityType();
+        final EntityType entityType = lookupValueUtils.findEntityType(entityTypeName);
+
         final I input = context.getInput();
         return createEntity(input)
                 .zipWhen(entity -> lookupValueUtils.createLookupValues(entity.getId(), "TAG", input.getTags()))
                 .map(tuple -> toResourceFn.apply(tuple.getT1())
                         .withTags(tuple.getT2()))
                 .map(context::withOutput)
-                .onErrorResume(this::handleException);
+                .onErrorResume(t -> handleException(t, context));
     }
 
     private Mono<E> createEntity(final I request) {
@@ -85,7 +86,8 @@ public abstract class CreateEntityCommand<
                 .flatMap(repository::save);
     }
 
-    private Mono<C> handleException(final Throwable t) {
+    private Mono<C> handleException(final Throwable t, final C context) {
+        final String entityType = context.getEntityType();
         if (t instanceof DataIntegrityViolationException) {
             final Optional<String> message = Optional.ofNullable(t).map(Throwable::getMessage);
             if (message.isPresent() && message.get().contains(UNIQUE_INDEX_ERROR)) {

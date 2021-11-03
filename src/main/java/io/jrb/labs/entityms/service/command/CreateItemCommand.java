@@ -30,9 +30,11 @@ import io.jrb.labs.entityms.mapper.ItemMapper;
 import io.jrb.labs.entityms.repository.ItemEntityRepository;
 import io.jrb.labs.entityms.resource.AddItemResource;
 import io.jrb.labs.entityms.resource.ItemResource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Component
+@Slf4j
 public class CreateItemCommand extends CreateEntityCommand<AddItemResource, ItemResource, ItemContext, ItemEntity> {
 
     public CreateItemCommand(
@@ -40,7 +42,7 @@ public class CreateItemCommand extends CreateEntityCommand<AddItemResource, Item
             final ItemEntityRepository repository,
             final LookupValueUtils lookupValueUtils
     ) {
-        super("item", mapper::addItemToItemEntity, mapper::itemEntityToItemResource, repository, lookupValueUtils);
+        super(mapper::addItemToItemEntity, mapper::itemEntityToItemResource, repository, lookupValueUtils);
     }
 
 }

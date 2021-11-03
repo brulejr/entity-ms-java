@@ -21,27 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.common.service;
+package io.jrb.labs.common.service.command.entity;
 
-public class ServiceException extends RuntimeException {
+import io.jrb.labs.common.service.ServiceException;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-    private final String serviceName;
-    private final int code;
+import static java.lang.String.format;
 
-    public ServiceException(final String serviceName, final int code, final String message) {
-        super(message);
-        this.code = code;
-        this.serviceName = serviceName;
+@ResponseStatus(HttpStatus.BAD_REQUEST)
+public class UnknownEntityTypeException extends ServiceException {
+
+    private static final String SERVICE_NAME = "EntityCommand";
+    private static final String ERROR_MESSAGE = "Unknown %s entity type encountered!";
+
+    public UnknownEntityTypeException(final String entityType) {
+        super(SERVICE_NAME, HttpStatus.BAD_REQUEST.value(), format(ERROR_MESSAGE, entityType));
     }
-
-    public ServiceException(final String serviceName, final int code, final String message, final Throwable cause) {
-        super(message, cause);
-        this.code = code;
-        this.serviceName = serviceName;
-    }
-
-    public int getCode() { return code; }
-
-    public String getServiceName() { return serviceName; }
 
 }

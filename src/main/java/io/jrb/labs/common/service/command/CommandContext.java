@@ -31,6 +31,8 @@ public interface CommandContext<I, O, C extends CommandContext<I, O, C>> {
 
     O getOutput();
 
+    String getEntityType();
+
     Projection getProjection();
 
     C withOutput(O output);

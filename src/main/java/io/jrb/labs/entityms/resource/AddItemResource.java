@@ -27,6 +27,7 @@ import io.jrb.labs.common.resource.ResourceRequest;
 import lombok.Builder;
 import lombok.Singular;
 import lombok.Value;
+import lombok.extern.jackson.Jacksonized;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -34,6 +35,7 @@ import java.util.List;
 
 @Value
 @Builder
+@Jacksonized
 public class AddItemResource implements ResourceRequest<AddItemResource> {
 
     @NotBlank(message = "Type is required")

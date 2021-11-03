@@ -33,9 +33,9 @@ public interface Service {
         return getClass().getSimpleName();
     }
 
-    default <T> Mono<T> handleException(final Throwable t, final String action) {
+    default <T> Mono<T> handleException(final Throwable t, final int code, final String action) {
         final String pattern = "Unable to %s due to unexpected error!";
-        return Mono.error(new ServiceException(this, format(pattern, action), t));
+        return Mono.error(new ServiceException(getServiceName(), code, format(pattern, action), t));
     }
 
 }

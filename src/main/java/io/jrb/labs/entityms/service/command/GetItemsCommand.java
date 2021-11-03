@@ -40,7 +40,7 @@ public class GetItemsCommand extends GetEntitiesCommand<AddItemResource, ItemRes
             final ItemEntityRepository repository,
             final LookupValueUtils lookupValueUtils
     ) {
-        super("item", mapper::itemEntityToItemResource, repository, lookupValueUtils);
+        super(mapper::itemEntityToItemResource, repository, lookupValueUtils);
     }
 
 }

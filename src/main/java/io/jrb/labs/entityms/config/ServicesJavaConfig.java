@@ -21,27 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.common.service;
+package io.jrb.labs.entityms.config;
 
-public class ServiceException extends RuntimeException {
+import io.jrb.labs.common.service.command.entity.config.EntityServiceProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
 
-    private final String serviceName;
-    private final int code;
-
-    public ServiceException(final String serviceName, final int code, final String message) {
-        super(message);
-        this.code = code;
-        this.serviceName = serviceName;
-    }
-
-    public ServiceException(final String serviceName, final int code, final String message, final Throwable cause) {
-        super(message, cause);
-        this.code = code;
-        this.serviceName = serviceName;
-    }
-
-    public int getCode() { return code; }
-
-    public String getServiceName() { return serviceName; }
+@Configuration
+@EnableConfigurationProperties(EntityServiceProperties.class)
+public class ServicesJavaConfig {
 
 }

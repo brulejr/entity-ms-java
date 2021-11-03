@@ -47,17 +47,17 @@ public class ItemRoutes {
     }
 
     private RouterFunction<ServerResponse> createItemRoute() {
-        return route().POST("/items", itemHandler::createItem)
+        return route().POST("/{entityType}", itemHandler::createItem)
                 .build();
     }
 
     private RouterFunction<ServerResponse> findItemRoute() {
-        return route().GET("/items/{guid}", itemHandler::findItem)
+        return route().GET("/{entityType}/{guid}", itemHandler::findItem)
                 .build();
     }
 
     private RouterFunction<ServerResponse> retrieveItemsRoute() {
-        return route().GET("/items", itemHandler::getAllItems)
+        return route().GET("/{entityType}", itemHandler::getAllItems)
                 .build();
     }
 

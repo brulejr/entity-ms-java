@@ -23,7 +23,6 @@
  */
 package io.jrb.labs.entityms.service.command;
 
-import io.jrb.labs.common.repository.LookupValueRepository;
 import io.jrb.labs.common.service.command.entity.FindEntityCommand;
 import io.jrb.labs.common.service.command.entity.LookupValueUtils;
 import io.jrb.labs.entityms.domain.ItemEntity;
@@ -41,7 +40,7 @@ public class FindItemCommand extends FindEntityCommand<AddItemResource, ItemReso
             final ItemEntityRepository repository,
             final LookupValueUtils lookupValueUtils
     ) {
-        super("item", mapper::itemEntityToItemResource, repository, lookupValueUtils);
+        super(mapper::itemEntityToItemResource, repository, lookupValueUtils);
     }
 
 }

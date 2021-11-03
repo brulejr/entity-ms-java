@@ -42,6 +42,8 @@ public class ItemContext implements EntityCommandContext<AddItemResource, ItemRe
 
     Projection projection;
 
+    String entityType;
+
     String guid;
 
 }

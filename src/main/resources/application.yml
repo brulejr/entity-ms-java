@@ -42,3 +42,15 @@ management:
     shutdown:
       enabled: true
 
+entity-service:
+  entities:
+    - type: item
+      properties:
+        - type: tags
+          projection: DETAILS
+    - type: thing
+      properties:
+        - type: tags
+          projection: DETAILS
+        - type: groups
+          projection: DEEP

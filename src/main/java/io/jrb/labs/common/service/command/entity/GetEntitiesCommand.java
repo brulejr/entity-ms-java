@@ -29,6 +29,7 @@ import io.jrb.labs.common.resource.Projection;
 import io.jrb.labs.common.resource.Resource;
 import io.jrb.labs.common.resource.ResourceRequest;
 import io.jrb.labs.common.service.command.Command;
+import io.jrb.labs.common.service.command.entity.config.EntityType;
 import org.reactivestreams.Publisher;
 
 import java.util.function.Function;
@@ -39,18 +40,15 @@ public abstract class GetEntitiesCommand<
         C extends EntityCommandContext<I, O, C>,
         E extends Entity<E>> implements Command<I, O, C> {
 
-    private final String entityType;
     private final Function<E, O> toResourceFn;
     private final EntityRepository<E> repository;
     private final LookupValueUtils lookupValueUtils;
 
     protected GetEntitiesCommand(
-            final String entityType,
             final Function<E, O> toResourceFn,
             final EntityRepository<E> repository,
             final LookupValueUtils lookupValueUtils
     ) {
-        this.entityType = entityType;
         this.toResourceFn = toResourceFn;
         this.repository = repository;
         this.lookupValueUtils = lookupValueUtils;
@@ -58,11 +56,14 @@ public abstract class GetEntitiesCommand<
 
     @Override
     public Publisher<C> execute(final C context) {
+        final String entityTypeName = context.getEntityType();
+        final EntityType entityType = lookupValueUtils.findEntityType(entityTypeName);
+
         final Projection projection = context.getProjection();
         return repository.findAll()
                 .flatMap(e -> lookupValueUtils.addLookupValues(e, toResourceFn, projection))
                 .map(context::withOutput)
-                .onErrorResume(t -> handleException(t, "retrieve all " + entityType));
+                .onErrorResume(t -> handleException(t, "retrieve all " + entityTypeName));
     }
 
 }

@@ -28,12 +28,15 @@ import io.jrb.labs.common.domain.LookupValue;
 import io.jrb.labs.common.repository.LookupValueRepository;
 import io.jrb.labs.common.resource.Projection;
 import io.jrb.labs.common.resource.Resource;
+import io.jrb.labs.common.service.command.entity.config.EntityType;
+import io.jrb.labs.common.service.command.entity.config.EntityServiceProperties;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -41,9 +44,14 @@ import java.util.stream.Collectors;
 public class LookupValueUtils {
 
     private final LookupValueRepository lookupValueRepository;
+    private final EntityServiceProperties entSvcProps;
 
-    public LookupValueUtils(final LookupValueRepository lookupValueRepository) {
+    public LookupValueUtils(
+            final LookupValueRepository lookupValueRepository,
+            final EntityServiceProperties entSvcProps
+    ) {
         this.lookupValueRepository = lookupValueRepository;
+        this.entSvcProps = entSvcProps;
     }
 
     public <E extends Entity<E>, O extends Resource<O>> Mono<O> addLookupValues(
@@ -78,6 +86,13 @@ public class LookupValueUtils {
                 .filter(v -> valueType.equals(v.getValueType()))
                 .map(LookupValue::getValue)
                 .collect(Collectors.toList());
+    }
+
+    public EntityType findEntityType(final String entityTypeName) {
+        return entSvcProps.getEntities().stream()
+                .filter(d -> entityTypeName.equals(d.getType()))
+                .findAny()
+                .orElseThrow(() -> new UnknownEntityTypeException(entityTypeName));
     }
 
     public Mono<List<LookupValue>> findValueList(final long entityId, final Projection projection) {
