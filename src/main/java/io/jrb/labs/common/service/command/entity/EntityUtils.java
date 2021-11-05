@@ -28,15 +28,17 @@ import io.jrb.labs.common.domain.LookupValue;
 import io.jrb.labs.common.repository.LookupValueRepository;
 import io.jrb.labs.common.resource.Projection;
 import io.jrb.labs.common.resource.Resource;
-import io.jrb.labs.common.service.command.entity.config.EntityType;
 import io.jrb.labs.common.service.command.entity.config.EntityServiceProperties;
+import io.jrb.labs.common.service.command.entity.config.EntityType;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -60,9 +62,9 @@ public class EntityUtils {
             final Projection projection
     ) {
         return Mono.just(entity)
-                .zipWhen(e -> findValueList(e.getId(), projection))
+                .zipWhen(e -> findValuesMap(e.getId(), projection))
                 .map(tuple -> toResourceFn.apply(tuple.getT1())
-                        .withTags(extractValues(tuple.getT2(), "TAG")));
+                                .withDetails(tuple.getT2()));
     }
 
     public Mono<List<String>> createLookupValues(final long entityId, final String type, final List<String> values) {
@@ -81,13 +83,6 @@ public class EntityUtils {
         }
     }
 
-    public List<String> extractValues(final List<LookupValue> values, final String valueType) {
-        return values.stream()
-                .filter(v -> valueType.equals(v.getValueType()))
-                .map(LookupValue::getValue)
-                .collect(Collectors.toList());
-    }
-
     public EntityType findEntityType(final String entityTypeName) {
         return entSvcProps.getEntities().stream()
                 .filter(d -> entityTypeName.equals(d.getType()))
@@ -95,12 +90,17 @@ public class EntityUtils {
                 .orElseThrow(() -> new UnknownEntityTypeException(entityTypeName));
     }
 
-    public Mono<List<LookupValue>> findValueList(final long entityId, final Projection projection) {
-        if (projection == Projection.DEEP) {
+    public Mono<Map<String, List<String>>> findValuesMap(final long entityId, final Projection projection) {
+        if (projection.isAtLeast(Projection.DETAILS)) {
             return lookupValueRepository.findByEntityId(entityId)
-                    .collectList();
+                    .reduce(new HashMap<>(), (map, lv) -> {
+                        final List<String> values = map.getOrDefault(lv.getValueType(), new ArrayList<>());
+                        values.add(lv.getValue());
+                        map.put(lv.getValueType(), values);
+                        return map;
+                    });
         } else {
-            return Mono.just(Collections.emptyList());
+            return Mono.just(Collections.emptyMap());
         }
     }
 

@@ -23,6 +23,7 @@
  */
 package io.jrb.labs.entityms.resource;
 
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import io.jrb.labs.common.resource.ResourceRequest;
 import lombok.Builder;
 import lombok.Singular;
@@ -32,6 +33,7 @@ import lombok.extern.jackson.Jacksonized;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.List;
+import java.util.Map;
 
 @Value
 @Builder
@@ -46,7 +48,8 @@ public class ThingRequest implements ResourceRequest<ThingRequest> {
     @Size(min = 4, max = 64, message = "Name must be between 4 and 64 characters")
     String name;
 
-    @Singular
-    List<String> tags;
+    @JsonAnySetter
+    @Singular("detail")
+    Map<String, List<String>> details;
 
 }

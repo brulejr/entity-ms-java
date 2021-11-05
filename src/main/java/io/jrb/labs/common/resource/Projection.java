@@ -35,6 +35,10 @@ public enum Projection {
         this.view = view;
     }
 
+    public boolean isAtLeast(final Projection projection) {
+        return this.ordinal() >= projection.ordinal();
+    }
+
     public static class Summary {
     }
 

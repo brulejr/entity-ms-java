@@ -24,6 +24,7 @@
 package io.jrb.labs.common.resource;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ResourceRequest<R extends ResourceRequest<R>> {
 
@@ -31,6 +32,6 @@ public interface ResourceRequest<R extends ResourceRequest<R>> {
 
     String getName();
 
-    List<String> getTags();
+    Map<String, List<String>> getDetails();
 
 }

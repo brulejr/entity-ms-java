@@ -33,8 +33,13 @@ import io.jrb.labs.common.service.command.entity.config.EntityType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
@@ -72,11 +77,24 @@ public abstract class CreateEntityCommand<
 
         final I input = context.getInput();
         return createEntity(input)
-                .zipWhen(entity -> entityUtils.createLookupValues(entity.getId(), "TAG", input.getTags()))
+                .zipWhen(entity -> createLookupValues(entity, input))
                 .map(tuple -> toResourceFn.apply(tuple.getT1())
-                        .withTags(tuple.getT2()))
+                        .withDetails(tuple.getT2()))
                 .map(context::withOutput)
                 .onErrorResume(t -> handleException(t, context));
+    }
+
+    private Mono<Map<String, List<String>>> createLookupValues(final E entity, final I input) {
+        final Long entityId = entity.getId();
+        return Optional.ofNullable(input.getDetails())
+                .map(details -> Flux.fromIterable(details.entrySet())
+                        .flatMap(entry -> {
+                            final String key = entry.getKey();
+                            final List<String> values = entry.getValue();
+                            return entityUtils.createLookupValues(entityId, key, values)
+                                    .zipWith(Mono.just(entry.getKey()));
+                        }).collectMap(Tuple2::getT2, Tuple2::getT1))
+                .orElse(Mono.just(Collections.emptyMap()));
     }
 
     private Mono<E> createEntity(final I request) {

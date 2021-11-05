@@ -24,6 +24,7 @@
 package io.jrb.labs.common.resource;
 
 import java.util.List;
+import java.util.Map;
 
 public interface Resource<R extends Resource<R>> {
 
@@ -33,8 +34,6 @@ public interface Resource<R extends Resource<R>> {
 
     String getName();
 
-    List<String> getTags();
-
-    R withTags(List<String> tags);
+    R withDetails(Map<String, List<String>> details);
 
 }

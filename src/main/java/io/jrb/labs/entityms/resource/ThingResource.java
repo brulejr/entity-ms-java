@@ -23,15 +23,18 @@
  */
 package io.jrb.labs.entityms.resource;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonView;
 import io.jrb.labs.common.resource.Projection;
 import io.jrb.labs.common.resource.Resource;
 import lombok.Builder;
+import lombok.Singular;
 import lombok.Value;
 import lombok.With;
 
 import java.util.List;
+import java.util.Map;
 
 @Value
 @Builder
@@ -48,7 +51,9 @@ public class ThingResource implements Resource<ThingResource> {
     String name;
 
     @JsonView(Projection.Detail.class)
+    @JsonAnyGetter
+    @Singular("detail")
     @With
-    List<String> tags;
+    Map<String, List<String>> details;
 
 }
