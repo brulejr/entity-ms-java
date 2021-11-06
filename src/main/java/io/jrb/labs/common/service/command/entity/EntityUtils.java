@@ -57,12 +57,13 @@ public class EntityUtils {
     }
 
     public <E extends Entity<E>, O extends Resource<O>> Mono<O> addLookupValues(
+            final EntityType entityType,
             final E entity,
             final Function<E, O> toResourceFn,
             final Projection projection
     ) {
         return Mono.just(entity)
-                .zipWhen(e -> findValuesMap(e.getId(), projection))
+                .zipWhen(e -> findValuesMap(entityType, e.getId(), projection))
                 .map(tuple -> toResourceFn.apply(tuple.getT1())
                                 .withDetails(tuple.getT2()));
     }
@@ -96,18 +97,22 @@ public class EntityUtils {
                 .orElseThrow(() -> new UnknownEntityTypeException(entityTypeName));
     }
 
-    public Mono<Map<String, List<String>>> findValuesMap(final long entityId, final Projection projection) {
-        if (projection.isAtLeast(Projection.DETAILS)) {
-            return lookupValueRepository.findByEntityId(entityId)
-                    .reduce(new HashMap<>(), (map, lv) -> {
-                        final List<String> values = map.getOrDefault(lv.getValueType(), new ArrayList<>());
-                        values.add(lv.getValue());
-                        map.put(lv.getValueType(), values);
-                        return map;
+    public Mono<Map<String, List<String>>> findValuesMap(
+            final EntityType entityType,
+            final long entityId,
+            final Projection projection
+    ) {
+        return lookupValueRepository.findByEntityId(entityId)
+                .reduce(new HashMap<>(), (map, lv) -> {
+                    entityType.findProperty(lv.getValueType()).ifPresent(propertyType -> {
+                        if (projection.isAtLeast(propertyType.getProjection())) {
+                            final List<String> values = map.getOrDefault(lv.getValueType(), new ArrayList<>());
+                            values.add(lv.getValue());
+                            map.put(lv.getValueType(), values);
+                        }
                     });
-        } else {
-            return Mono.just(Collections.emptyMap());
-        }
+                    return map;
+                });
     }
 
 }

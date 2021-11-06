@@ -61,7 +61,7 @@ public abstract class GetEntitiesCommand<
 
         final Projection projection = context.getProjection();
         return repository.findAll()
-                .flatMap(e -> entityUtils.addLookupValues(e, toResourceFn, projection))
+                .flatMap(e -> entityUtils.addLookupValues(entityType, e, toResourceFn, projection))
                 .map(context::withOutput)
                 .onErrorResume(t -> handleException(t, "retrieve all " + entityTypeName));
     }

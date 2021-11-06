@@ -62,7 +62,7 @@ public abstract class FindEntityCommand<
         final String guid = context.getGuid();
         final Projection projection = context.getProjection();
         return repository.findByGuid(guid)
-                .flatMap(e -> entityUtils.addLookupValues(e, toResourceFn, projection))
+                .flatMap(e -> entityUtils.addLookupValues(entityType, e, toResourceFn, projection))
                 .map(context::withOutput)
                 .onErrorResume(t -> handleException(t, "find " + entityTypeName))
                 .switchIfEmpty(Mono.error(new UnknownEntityException(this, entityTypeName)));
