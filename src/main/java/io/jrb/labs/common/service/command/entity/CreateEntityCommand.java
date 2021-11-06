@@ -33,6 +33,7 @@ import io.jrb.labs.common.service.command.entity.config.EntityType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -71,27 +72,33 @@ public abstract class CreateEntityCommand<
     }
 
     @Override
+    @Transactional
     public Mono<C> execute(final C context) {
         final String entityTypeName = context.getEntityType();
         final EntityType entityType = entityUtils.findEntityType(entityTypeName);
 
         final I input = context.getInput();
         return createEntity(input)
-                .zipWhen(entity -> createLookupValues(entity, input))
+                .zipWhen(entity -> createLookupValues(entityType, entity, input))
                 .map(tuple -> toResourceFn.apply(tuple.getT1())
                         .withDetails(tuple.getT2()))
                 .map(context::withOutput)
                 .onErrorResume(t -> handleException(t, context));
     }
 
-    private Mono<Map<String, List<String>>> createLookupValues(final E entity, final I input) {
+    private Mono<Map<String, List<String>>> createLookupValues(
+            final EntityType entityType,
+            final E entity,
+            final I input
+    ) {
         final Long entityId = entity.getId();
         return Optional.ofNullable(input.getDetails())
                 .map(details -> Flux.fromIterable(details.entrySet())
                         .flatMap(entry -> {
-                            final String key = entry.getKey();
-                            final List<String> values = entry.getValue();
-                            return entityUtils.createLookupValues(entityId, key, values)
+                            final String propName = entry.getKey();
+                            entityType.findProperty(propName)
+                                    .orElseThrow(() -> new UnknownEntityPropertyException(propName));
+                            return entityUtils.createLookupValues(entityId, propName, entry.getValue())
                                     .zipWith(Mono.just(entry.getKey()));
                         }).collectMap(Tuple2::getT2, Tuple2::getT1))
                 .orElse(Mono.just(Collections.emptyMap()));
@@ -107,10 +114,12 @@ public abstract class CreateEntityCommand<
     private Mono<C> handleException(final Throwable t, final C context) {
         final String entityType = context.getEntityType();
         if (t instanceof DataIntegrityViolationException) {
-            final Optional<String> message = Optional.ofNullable(t).map(Throwable::getMessage);
+            final Optional<String> message = Optional.ofNullable(t.getMessage());
             if (message.isPresent() && message.get().contains(UNIQUE_INDEX_ERROR)) {
                 return Mono.error(new DuplicateEntityException(this, entityType));
             }
+        } else if (t instanceof UnknownEntityPropertyException) {
+            return Mono.error(t);
         }
         return Mono.error(new CommandException(
                 this,

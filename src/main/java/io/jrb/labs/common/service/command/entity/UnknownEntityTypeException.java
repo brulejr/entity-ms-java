@@ -33,7 +33,7 @@ import static java.lang.String.format;
 public class UnknownEntityTypeException extends ServiceException {
 
     private static final String SERVICE_NAME = "EntityCommand";
-    private static final String ERROR_MESSAGE = "Unknown %s entity type encountered!";
+    private static final String ERROR_MESSAGE = "Unknown entity type encountered - '%s'";
 
     public UnknownEntityTypeException(final String entityType) {
         super(SERVICE_NAME, HttpStatus.BAD_REQUEST.value(), format(ERROR_MESSAGE, entityType));

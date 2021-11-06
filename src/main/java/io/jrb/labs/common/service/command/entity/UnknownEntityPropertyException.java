@@ -21,25 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.common.service.command.entity.config;
+package io.jrb.labs.common.service.command.entity;
 
-import lombok.Value;
-import org.springframework.boot.context.properties.ConstructorBinding;
+import io.jrb.labs.common.service.ServiceException;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.util.List;
-import java.util.Optional;
+import static java.lang.String.format;
 
-@Value
-@ConstructorBinding
-public class EntityType {
+@ResponseStatus(HttpStatus.BAD_REQUEST)
+public class UnknownEntityPropertyException extends ServiceException {
 
-    String type;
+    private static final String SERVICE_NAME = "EntityCommand";
+    private static final String ERROR_MESSAGE = "Unknown entity property encountered - '%s'";
 
-    List<PropertyType> properties;
-
-    public Optional<PropertyType> findProperty(final String propertyName) {
-        return Optional.ofNullable(properties)
-                .flatMap(props -> props.stream().filter(p -> p.getType().equals(propertyName)).findFirst());
+    public UnknownEntityPropertyException(final String propType) {
+        super(SERVICE_NAME, HttpStatus.BAD_REQUEST.value(), format(ERROR_MESSAGE, propType));
     }
 
 }
