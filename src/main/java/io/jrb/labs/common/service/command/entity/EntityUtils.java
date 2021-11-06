@@ -67,8 +67,14 @@ public class EntityUtils {
                                 .withDetails(tuple.getT2()));
     }
 
-    public Mono<List<String>> createLookupValues(final long entityId, final String type, final List<String> values) {
+    public Mono<List<String>> createLookupValues(
+            final EntityType entityType,
+            final long entityId,
+            final String type,
+            final List<String> values
+    ) {
         if (values != null) {
+            entityType.findProperty(type).orElseThrow(() -> new UnknownEntityPropertyException(type));
             return Flux.fromIterable(values)
                     .map(value -> LookupValue.builder()
                             .entityId(entityId)

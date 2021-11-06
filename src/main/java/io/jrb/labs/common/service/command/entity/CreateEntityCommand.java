@@ -96,10 +96,8 @@ public abstract class CreateEntityCommand<
                 .map(details -> Flux.fromIterable(details.entrySet())
                         .flatMap(entry -> {
                             final String propName = entry.getKey();
-                            entityType.findProperty(propName)
-                                    .orElseThrow(() -> new UnknownEntityPropertyException(propName));
-                            return entityUtils.createLookupValues(entityId, propName, entry.getValue())
-                                    .zipWith(Mono.just(entry.getKey()));
+                            return entityUtils.createLookupValues(entityType, entityId, propName, entry.getValue())
+                                    .zipWith(Mono.just(propName));
                         }).collectMap(Tuple2::getT2, Tuple2::getT1))
                 .orElse(Mono.just(Collections.emptyMap()));
     }
