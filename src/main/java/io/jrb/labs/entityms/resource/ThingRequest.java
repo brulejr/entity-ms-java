@@ -24,10 +24,12 @@
 package io.jrb.labs.entityms.resource;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.jrb.labs.common.resource.ResourceRequest;
 import lombok.Builder;
 import lombok.Singular;
 import lombok.Value;
+import lombok.With;
 import lombok.extern.jackson.Jacksonized;
 
 import javax.validation.constraints.NotBlank;
@@ -40,10 +42,6 @@ import java.util.Map;
 @Jacksonized
 public class ThingRequest implements ResourceRequest<ThingRequest> {
 
-    @NotBlank(message = "Type is required")
-    @Size(min = 3, max = 64, message = "Type must be between 3 and 64 characters")
-    String type;
-
     @NotBlank(message = "Name is required")
     @Size(min = 4, max = 64, message = "Name must be between 4 and 64 characters")
     String name;
@@ -51,5 +49,9 @@ public class ThingRequest implements ResourceRequest<ThingRequest> {
     @JsonAnySetter
     @Singular("detail")
     Map<String, List<String>> details;
+
+    @With
+    @JsonIgnore
+    String type;
 
 }

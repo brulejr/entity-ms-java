@@ -78,7 +78,7 @@ public abstract class CreateEntityCommand<
         final EntityType entityType = entityUtils.findEntityType(entityTypeName);
 
         final I input = context.getInput();
-        return createEntity(input)
+        return createEntity(entityType, input)
                 .zipWhen(entity -> createLookupValues(entityType, entity, input))
                 .map(tuple -> toResourceFn.apply(tuple.getT1())
                         .withDetails(tuple.getT2()))
@@ -102,8 +102,9 @@ public abstract class CreateEntityCommand<
                 .orElse(Mono.just(Collections.emptyMap()));
     }
 
-    private Mono<E> createEntity(final I request) {
+    private Mono<E> createEntity(final EntityType entityType, final I request) {
         return Mono.just(request)
+                .map(r -> r.withType(entityType.getType()))
                 .map(toEntityFn)
                 .map(entity -> entity.withGuid(UUID.randomUUID().toString()))
                 .flatMap(repository::save);

@@ -34,4 +34,6 @@ public interface ResourceRequest<R extends ResourceRequest<R>> {
 
     Map<String, List<String>> getDetails();
 
+    R withType(String type);
+
 }
