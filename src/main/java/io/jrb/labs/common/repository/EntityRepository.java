@@ -31,6 +31,6 @@ import reactor.core.publisher.Mono;
 @NoRepositoryBean
 public interface EntityRepository<E extends Entity<E>> extends ReactiveCrudRepository<E, Long> {
 
-    Mono<E> findByGuid(String guid);
+    Mono<E> findByTypeAndGuid(String type, String guid);
 
 }
