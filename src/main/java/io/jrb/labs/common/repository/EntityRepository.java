@@ -26,11 +26,14 @@ package io.jrb.labs.common.repository;
 import io.jrb.labs.common.domain.Entity;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @NoRepositoryBean
 public interface EntityRepository<E extends Entity<E>> extends ReactiveCrudRepository<E, Long> {
 
     Mono<E> findByTypeAndGuid(String type, String guid);
+
+    Flux<E> findByType(String type);
 
 }

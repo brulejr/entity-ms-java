@@ -60,7 +60,7 @@ public abstract class GetEntitiesCommand<
         final EntityType entityType = entityUtils.findEntityType(entityTypeName);
 
         final Projection projection = context.getProjection();
-        return repository.findAll()
+        return repository.findByType(entityType.getType())
                 .flatMap(e -> entityUtils.addLookupValues(entityType, e, toResourceFn, projection))
                 .map(context::withOutput)
                 .onErrorResume(t -> handleException(t, "retrieve all " + entityTypeName));
