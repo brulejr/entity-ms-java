@@ -10,6 +10,9 @@ server:
   error:
     include-message: always
 
+h2.console:
+  port: 4051
+
 traceability:
   headers:
     applicationId: x-trace-appl

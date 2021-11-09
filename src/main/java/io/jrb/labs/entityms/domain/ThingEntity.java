@@ -27,9 +27,13 @@ import io.jrb.labs.common.domain.Entity;
 import lombok.Builder;
 import lombok.Value;
 import lombok.With;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
+
+import java.time.Instant;
 
 @Value
 @Builder
@@ -49,5 +53,13 @@ public class ThingEntity implements Entity<ThingEntity> {
 
     @Column(value = "th_name")
     String name;
+
+    @CreatedDate
+    @Column(value = "th_created_on")
+    Instant createdOn;
+
+    @LastModifiedDate
+    @Column(value = "th_updated_on")
+    Instant updatedOn;
 
 }

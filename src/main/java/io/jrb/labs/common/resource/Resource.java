@@ -23,6 +23,7 @@
  */
 package io.jrb.labs.common.resource;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +34,10 @@ public interface Resource<R extends Resource<R>> {
     String getType();
 
     String getName();
+
+    Instant getCreatedOn();
+
+    Instant getUpdatedOn();
 
     R withDetails(Map<String, List<String>> details);
 

@@ -33,6 +33,7 @@ import lombok.Singular;
 import lombok.Value;
 import lombok.With;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -49,6 +50,12 @@ public class ThingResource implements Resource<ThingResource> {
 
     @JsonView(Projection.Summary.class)
     String name;
+
+    @JsonView(Projection.Detail.class)
+    Instant createdOn;
+
+    @JsonView(Projection.Detail.class)
+    Instant updatedOn;
 
     @JsonView(Projection.Detail.class)
     @JsonAnyGetter

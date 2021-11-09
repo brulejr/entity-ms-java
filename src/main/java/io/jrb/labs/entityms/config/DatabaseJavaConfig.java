@@ -23,13 +23,17 @@
  */
 package io.jrb.labs.entityms.config;
 
+import io.jrb.labs.common.h2.H2ConsoleServer;
 import io.r2dbc.spi.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.r2dbc.config.EnableR2dbcAuditing;
 import org.springframework.data.r2dbc.repository.config.EnableR2dbcRepositories;
 import org.springframework.r2dbc.connection.R2dbcTransactionManager;
 import org.springframework.r2dbc.connection.init.CompositeDatabasePopulator;
@@ -49,6 +53,7 @@ import org.springframework.transaction.ReactiveTransactionManager;
 @ComponentScan(basePackages = {
         "io.jrb.labs.common.service.command.entity"
 })
+@EnableR2dbcAuditing
 public class DatabaseJavaConfig {
 
     @Bean
@@ -70,6 +75,12 @@ public class DatabaseJavaConfig {
             @Qualifier("connectionFactory") final ConnectionFactory connectionFactory
     ) {
         return new R2dbcTransactionManager(connectionFactory);
+    }
+
+    @Bean
+    @Profile("local")
+    public H2ConsoleServer h2ConsoleServer(@Value("${h2.console.port}") final int consolePort) {
+        return new H2ConsoleServer(consolePort);
     }
 
 }

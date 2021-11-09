@@ -21,21 +21,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package io.jrb.labs.entityms.mapper;
+package io.jrb.labs.common.h2;
 
-import io.jrb.labs.entityms.domain.ThingEntity;
-import io.jrb.labs.entityms.resource.ThingRequest;
-import io.jrb.labs.entityms.resource.ThingResource;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import lombok.extern.slf4j.Slf4j;
+import org.h2.tools.Server;
+import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 
-@Mapper(componentModel = "spring")
-public interface ThingMapper {
+import java.sql.SQLException;
 
-    ThingEntity thingRequestToThingEntity(ThingRequest thingRequest);
+@Slf4j
+public class H2ConsoleServer {
 
-    @Mapping(source = "entity.createdOn", target = "createdOn")
-    @Mapping(source = "entity.updatedOn", target = "updatedOn")
-    ThingResource thingEntityToThingResource(ThingEntity entity);
+    private final int consolePort;
+    private Server webServer;
+
+    public H2ConsoleServer(final int consolePort) {
+        this.consolePort = consolePort;
+    }
+
+    @EventListener({ContextRefreshedEvent.class})
+    public void start() throws SQLException {
+        log.info("starting h2 console at port {}", this.consolePort);
+        this.webServer = Server.createWebServer(new String[]{
+                "-webPort", String.valueOf(this.consolePort),
+                "-tcpAllowOthers"
+        }).start();
+    }
+
+    @EventListener({ContextClosedEvent.class})
+    public void stop() {
+        log.info("stopping h2 console at port {}", this.consolePort);
+        this.webServer.stop();
+    }
 
 }
