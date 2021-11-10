@@ -39,6 +39,8 @@ public interface Resource<R extends Resource<R>> {
 
     Instant getUpdatedOn();
 
+    long getVersion();
+
     R withDetails(Map<String, List<String>> details);
 
 }

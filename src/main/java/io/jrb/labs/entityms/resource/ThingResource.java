@@ -58,6 +58,9 @@ public class ThingResource implements Resource<ThingResource> {
     Instant updatedOn;
 
     @JsonView(Projection.Detail.class)
+    long version;
+
+    @JsonView(Projection.Detail.class)
     @JsonAnyGetter
     @Singular("detail")
     @With

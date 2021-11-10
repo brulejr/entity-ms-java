@@ -33,6 +33,8 @@ public interface Entity<E extends Entity<E>> {
 
     String getName();
 
+    long getVersion();
+
     E withGuid(String guid);
 
 }

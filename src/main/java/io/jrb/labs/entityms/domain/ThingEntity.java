@@ -30,6 +30,7 @@ import lombok.With;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -61,5 +62,9 @@ public class ThingEntity implements Entity<ThingEntity> {
     @LastModifiedDate
     @Column(value = "th_updated_on")
     Instant updatedOn;
+
+    @Version
+    @Column(value = "th_version")
+    long version;
 
 }
